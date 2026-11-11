@@ -1,0 +1,3621 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12141c">
+<title>КРОМКА</title>
+<style>
+:root {
+  --ink: #12141c;
+  --ink-2: #1a1e2a;
+  --panel: #1c2230;
+  --panel-2: #262c3d;
+  --line: rgba(232, 214, 186, 0.16);
+  --copper: #e2a15a;
+  --copper-2: #ffd7a4;
+  --bone: #f4efe6;
+  --muted: #b7b1a6;
+  --teal: #7ed0c4;
+  --teal-dim: #1c4e52;
+  --chasm: #0c2a30;
+  --enemy: #ff5d6e;
+  --violet: #c97bff;
+  --good: #9dffc8;
+  --danger: #ff6a45;
+  --ground: #2a3142;
+  --ground-2: #323a4e;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.38);
+  --sans: "Segoe UI", "Liberation Sans", "DejaVu Sans", sans-serif;
+  --serif: Georgia, "Liberation Serif", "Times New Roman", serif;
+  --tile: 64px;
+  --gap: 4px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; }
+body {
+  min-height: 100%;
+  background:
+    radial-gradient(1200px 600px at 70% -10%, rgba(226, 161, 90, 0.16), transparent 55%),
+    radial-gradient(900px 500px at -10% 110%, rgba(30, 90, 96, 0.35), transparent 50%),
+    var(--ink);
+  color: var(--bone);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.45;
+}
+button, input { font-family: inherit; color: inherit; }
+button {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  border-radius: 12px;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 15px;
+}
+button:hover { border-color: rgba(226, 161, 90, 0.55); }
+button:focus-visible, .tile:focus-visible, .mech:focus-visible {
+  outline: 2px solid var(--copper-2);
+  outline-offset: 2px;
+}
+button:disabled { opacity: 0.45; cursor: default; }
+button.primary {
+  background: linear-gradient(180deg, #f0c48a, #c9843a);
+  color: #2a1608;
+  border-color: transparent;
+  font-weight: 700;
+}
+button.ghost { background: transparent; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: 0.01em; margin: 0; }
+p { margin: 0; }
+
+#app { min-height: 100%; }
+
+.screen {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: 36px;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+}
+.brand {
+  font-family: var(--serif);
+  font-size: clamp(64px, 10vw, 112px);
+  line-height: 0.85;
+  letter-spacing: 0.04em;
+  margin: 0 0 12px;
+}
+.brand span { color: var(--copper); }
+.tagline { font-size: 20px; max-width: 36ch; color: var(--bone); }
+.lede { color: var(--muted); max-width: 46ch; margin-top: 12px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.hero-art {
+  background: var(--panel);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.hero-art svg { display: block; width: 100%; height: auto; }
+.fineprint { margin-top: 18px; color: var(--muted); font-size: 14px; }
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.top h1 { font-size: 34px; }
+.linkish { background: none; border: none; color: var(--copper-2); padding: 8px 0; min-height: 44px; }
+
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card {
+  text-align: left;
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 100%;
+}
+.card h2 { font-size: 28px; }
+.rating {
+  display: inline-flex;
+  align-self: flex-start;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2a1608;
+  background: var(--copper);
+}
+.rating.mid { background: var(--teal); }
+.rating.hard { background: var(--enemy); color: #2a0c12; }
+.blurb { color: var(--muted); font-size: 14px; min-height: 3.2em; }
+.record { font-size: 14px; color: var(--copper-2); }
+.mini {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  width: 100%;
+  aspect-ratio: 1;
+  margin-top: 4px;
+}
+.mini i { display: block; border-radius: 2px; background: #2c3344; }
+.mini .m-w { background: #12383f; }
+.mini .m-n { background: #7d8da1; }
+.mini .m-b { background: #e0a04a; }
+.mini .m-r { background: #ffe08a; }
+.mini .m-s { background: #6a3d86; }
+.mini .m-p { background: var(--copper-2); box-shadow: 0 0 0 1px #2a1608 inset; }
+.mini .m-e { background: var(--enemy); }
+
+.battle {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 12px 12px 28px;
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  grid-template-areas:
+    "top top"
+    "dock stage";
+  gap: 12px 16px;
+}
+.battle-top { grid-area: top; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.battle-top .name {
+  font-family: var(--serif);
+  font-size: 28px;
+  margin-right: auto;
+}
+.turn-pill, .sound {
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  min-height: 40px;
+}
+.gridbar { display: flex; align-items: center; gap: 8px; min-width: 180px; }
+.gridbar b { font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.pips { display: flex; gap: 3px; flex-wrap: wrap; }
+.pips i {
+  width: 14px;
+  height: 18px;
+  border-radius: 3px;
+  background: #3a2a1c;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.pips i.on {
+  background: linear-gradient(180deg, #ffe3a8, #e09a3a);
+  box-shadow: 0 0 8px rgba(226, 161, 90, 0.55);
+}
+.pips i.pop { animation: pip 420ms ease; }
+.stage { grid-area: stage; display: flex; justify-content: flex-start; align-items: flex-start; }
+.frame {
+  padding: 10px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(226,161,90,.28), rgba(226,161,90,0) 28%),
+    #141924;
+  box-shadow: var(--shadow), inset 0 0 0 1px rgba(226,161,90,.32);
+}
+.board { position: relative; width: max-content; touch-action: manipulation; }
+.board.shake { animation: shake 220ms linear; }
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(8, var(--tile));
+  grid-auto-rows: var(--tile);
+  gap: var(--gap);
+  position: relative;
+  z-index: 1;
+}
+.tile {
+  width: var(--tile);
+  height: var(--tile);
+  border-radius: 8px;
+  position: relative;
+  background: var(--ground);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+  padding: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.tile.alt { background: var(--ground-2); }
+.tile.water {
+  background:
+    radial-gradient(circle at 50% 58%, #04161a 0 22%, #0c3a42 58%, #186872 100%);
+  box-shadow: inset 0 0 0 2px #3ec8c0, inset 0 0 18px rgba(0, 0, 0, 0.65);
+}
+.tile.water::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 28%;
+  height: 22%;
+  border-radius: 50%;
+  border: 1px solid rgba(160, 230, 220, 0.45);
+  animation: ripple 3s ease-in-out infinite;
+}
+.tile.mountain { background: linear-gradient(160deg, #9aabbe, #556274 55%, #3c4654); }
+.tile.building { background: #3a2c22; }
+.tile.rubble-building { background: #2a2422; }
+.tile.rubble-mountain { background: #3d4450; }
+.tile.spawn { box-shadow: inset 0 0 0 2px rgba(180, 90, 220, 0.7); }
+.tile .deco { position: absolute; inset: 0; pointer-events: none; }
+.tile.move {
+  background-color: rgba(58, 126, 230, 0.55);
+  box-shadow: inset 0 0 0 3px #7eb6ff;
+}
+.tile.weapon {
+  background-color: rgba(240, 176, 48, 0.42);
+  box-shadow: inset 0 0 0 3px #ffc14d;
+}
+.tile.coach { box-shadow: inset 0 0 0 3px #fff1d2, 0 0 0 2px rgba(226,161,90,.35); }
+.tile.tele { background-image: linear-gradient(0deg, rgba(255, 120, 60, 0.38), rgba(255, 120, 60, 0.38)); }
+.tile.impact { background-image: linear-gradient(0deg, rgba(230, 50, 50, 0.62), rgba(230, 50, 50, 0.62)); }
+.ord-tile {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 99px;
+  background: #fff;
+  color: #8d140c;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 22px;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px #e23d3d;
+}
+.legend { display: flex; flex-wrap: wrap; gap: 10px 14px; width: 100%; font-size: 13px; color: var(--muted); }
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-right: 4px;
+  vertical-align: -2px;
+}
+.swatch.red { background: #e23d3d; }
+.swatch.blue { background: #3a7ee6; }
+.swatch.gold { background: #ffc14d; }
+.swatch.push { background: #ffc14d; clip-path: polygon(0 40%, 70% 40%, 70% 10%, 100% 50%, 70% 90%, 70% 60%, 0 60%); }
+.swatch.pull { background: #3ec8c0; clip-path: polygon(100% 40%, 30% 40%, 30% 10%, 0 50%, 30% 90%, 30% 60%, 100% 60%); }
+.piece { box-shadow: inset 0 0 0 2px var(--accent, transparent); }
+.atk-icon {
+  position: absolute;
+  right: 1px;
+  bottom: 7px;
+  width: 14px;
+  height: 14px;
+  color: var(--accent, #fff);
+  background: rgba(8, 10, 16, 0.72);
+  border-radius: 4px;
+  z-index: 2;
+}
+.atk-icon svg { width: 14px; height: 14px; display: block; }
+.mini-svg { position: relative; }
+.mini-svg .atk-icon { right: -2px; bottom: -2px; }
+.mech { border-color: var(--accent, var(--line)); }
+.unitcard {
+  background: #1c2230;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px;
+}
+.uc-top { display: flex; gap: 8px; align-items: center; position: relative; }
+.uc-top svg { width: 52px; height: 52px; flex: none; }
+.uc-top .atk-icon { position: static; width: 22px; height: 22px; }
+.uc-top .atk-icon svg { width: 22px; height: 22px; }
+.uc-top b { font-size: 18px; }
+.uc-pips { display: flex; gap: 4px; margin: 6px 0; }
+.uc-pips i { width: 16px; height: 8px; border-radius: 3px; background: #3a2a1c; }
+.uc-pips i.on { background: var(--accent, #ffc14d); }
+.uc-now { margin: 6px 0 0; font-size: 14px; }
+.minigrid {
+  display: grid;
+  grid-template-columns: repeat(var(--n), 22px);
+  gap: 3px;
+  margin-top: 6px;
+}
+.minigrid i {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: #2a3142;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  color: #2a0c12;
+}
+.minigrid i.self { background: var(--accent, #e2a15a); }
+.minigrid i.dmg { background: #e23d3d; }
+.minigrid i.push { background: #ffc14d; }
+.minigrid i.pull { background: #3ec8c0; }
+.minigrid i.ray { background: #6a3d86; }
+.minigrid i[data-arrow]::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid #1a120c;
+}
+.minigrid i[data-arrow="N"]::after { transform: translateY(-8px); animation: nudgeN 1.1s ease-in-out infinite; }
+.minigrid i[data-arrow="S"]::after { transform: translateY(8px) rotate(180deg); animation: nudgeS 1.1s ease-in-out infinite; }
+.minigrid i[data-arrow="E"]::after { transform: translateX(8px) rotate(90deg); animation: nudgeE 1.1s ease-in-out infinite; }
+.minigrid i[data-arrow="W"]::after { transform: translateX(-8px) rotate(-90deg); animation: nudgeW 1.1s ease-in-out infinite; }
+@keyframes nudgeN { 50% { transform: translateY(-12px); } }
+@keyframes nudgeS { 50% { transform: translateY(12px) rotate(180deg); } }
+@keyframes nudgeE { 50% { transform: translateX(12px) rotate(90deg); } }
+@keyframes nudgeW { 50% { transform: translateX(-12px) rotate(-90deg); } }
+.diagram-note { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.compare { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.compare-card {
+  border: 1px solid var(--accent, var(--line));
+  border-radius: 12px;
+  padding: 8px;
+  background: #171c28;
+}
+.compare-top { display: flex; align-items: flex-end; gap: 4px; }
+.compare-top .atk-icon { position: static; }
+.nowbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  flex-basis: 100%;
+  background: #2a2218;
+  border: 1px solid rgba(226, 161, 90, 0.55);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+.nowbar p { flex: 1; margin: 0; font-size: 16px; }
+.nowbar button { min-height: 40px; }
+.nowbar.nope { animation: nope 0.35s linear; }
+#tut-arrow {
+  position: fixed;
+  z-index: 40;
+  pointer-events: none;
+  font-size: 26px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 0 #000);
+}
+body.teaching .tile,
+body.teaching .mech,
+body.teaching .endturn,
+body.teaching #confirm,
+body.teaching .piece {
+  opacity: 0.38;
+}
+body.teaching .tut-hot,
+body.teaching .tile.move,
+body.teaching .tile.impact,
+body.teaching .tile.tele,
+body.teaching #confirm.tut-hot,
+body.teaching #next-hint.tut-hot,
+body.teaching .gridbar.tut-hot {
+  opacity: 1;
+}
+body.teaching .tut-hot {
+  animation: tutpulse 1s ease-in-out infinite;
+  z-index: 6;
+}
+.rules-row { display: flex; gap: 10px; align-items: center; margin: 8px 0; }
+.rules-row svg { width: 56px; height: 56px; flex: none; }
+.rules-diagram { width: 100%; height: auto; margin: 8px 0; }
+@keyframes tutpulse {
+  50% { box-shadow: 0 0 0 4px #fff4c8, 0 0 16px rgba(255, 196, 80, 0.9); }
+}
+@keyframes nope {
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.tile.cursor { box-shadow: inset 0 0 0 2px #fff; }
+.tile.hitflash { animation: flash 280ms ease; }
+.pieces, .fx { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.fx { z-index: 4; }
+.piece {
+  position: absolute;
+  width: var(--tile);
+  height: var(--tile);
+  left: 0;
+  top: 0;
+  filter: drop-shadow(0 6px 4px rgba(0,0,0,.35));
+}
+.piece .rot { width: 100%; height: 100%; transform-origin: 50% 58%; }
+.piece.selected { filter: drop-shadow(0 0 6px rgba(255, 215, 164, 0.9)); }
+.piece .badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 99px;
+  background: #2a0c12;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 1px var(--enemy);
+}
+.piece .hp {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 2px;
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+}
+.piece .hp i {
+  width: 7px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(0,0,0,.45);
+}
+.piece.player .hp i.on { background: var(--copper-2); }
+.piece.enemy .hp i.on { background: #ffd0d4; }
+.tag {
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1a120c;
+  background: rgba(255,255,255,.78);
+  border-radius: 4px;
+  padding: 0 3px;
+  line-height: 14px;
+}
+.piece.enemy .tag { color: white; background: rgba(40, 8, 16, 0.72); }
+
+.arrow { fill: none; stroke: var(--enemy); stroke-width: 3; stroke-linecap: round; }
+.arrow.push { stroke: var(--copper-2); stroke-width: 3; }
+.mark {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  font-size: 15px;
+  color: white;
+  text-shadow: 0 1px 2px #000;
+  pointer-events: none;
+}
+.mark.skull { font-size: 18px; }
+.floater {
+  position: absolute;
+  z-index: 6;
+  transform: translate(-50%, -40%);
+  font-weight: 800;
+  color: #ffe1dc;
+  text-shadow: 0 2px 0 #4a1010;
+  animation: float 700ms ease forwards;
+  font-size: 18px;
+}
+.shell, .hook, .beam {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+}
+.shell {
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff, #ffb15a 40%, #c4512a);
+  box-shadow: 0 0 10px #ffb15a;
+}
+.impact {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.9), rgba(255,120,60,.0) 70%);
+  animation: pop 280ms ease forwards;
+}
+.dock {
+  grid-area: dock;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.mechs { display: flex; flex-direction: column; gap: 8px; }
+.mech {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 8px;
+}
+.mech.on { border-color: var(--copper); box-shadow: inset 0 0 0 1px var(--copper); }
+.mech .who { font-weight: 700; }
+.mech .sub { color: var(--muted); font-size: 13px; }
+.mech .mini-svg { width: 42px; height: 42px; }
+.modes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.modes button { min-height: 40px; padding: 6px; font-size: 14px; }
+.modes button.on { background: #3a2a1c; border-color: var(--copper); color: var(--copper-2); }
+.forecast, .hint, .last {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+.forecast strong { color: var(--good); }
+.forecast.bad strong { color: var(--danger); }
+.forecast ul, .last ul { margin: 6px 0 0; padding-left: 18px; }
+.hint { border-color: rgba(226,161,90,.45); background: #2a2218; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.actions .endturn { grid-column: 1 / -1; }
+.endturn.ready { box-shadow: 0 0 0 2px var(--copper); }
+.keys { color: var(--muted); font-size: 12px; line-height: 1.35; }
+.threats { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.threats div { display: flex; gap: 8px; align-items: baseline; }
+.ord {
+  width: 18px; height: 18px; border-radius: 99px;
+  display: inline-grid; place-items: center;
+  background: #3a1218; color: white; font-size: 12px; font-weight: 700;
+}
+
+.banner {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%);
+  background: rgba(18, 16, 20, 0.88);
+  border: 1px solid var(--copper);
+  color: var(--copper-2);
+  border-radius: 999px;
+  padding: 6px 12px;
+  z-index: 6;
+  font-size: 14px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.end {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 9, 12, 0.62);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  z-index: 20;
+}
+.end[hidden] { display: none; }
+.end-card {
+  width: min(440px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  background: #1b2130;
+  border-radius: 20px;
+  padding: 22px;
+  border: 1px solid rgba(226,161,90,.4);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.end-card h2 { font-size: 40px; margin-bottom: 4px; }
+.end-card .sub { color: var(--muted); margin-bottom: 14px; overflow-wrap: anywhere; }
+.score-row { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid var(--line); }
+.score-row span:last-child { white-space: nowrap; }
+.score-row.total { font-size: 20px; font-family: var(--serif); }
+.end-actions { display: flex; gap: 8px; margin-top: 16px; }
+.end-actions button { flex: 1; }
+.sparks { height: 8px; margin-bottom: 8px; }
+.win h2 { color: var(--copper-2); }
+.lose h2 { color: var(--enemy); }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,9,12,.72);
+  display: grid;
+  place-items: center;
+  z-index: 30;
+  padding: 16px;
+}
+.modal[hidden] { display: none; }
+.sheet {
+  width: min(560px, 100%);
+  max-height: min(86vh, 760px);
+  overflow: auto;
+  background: #1b2130;
+  border-radius: 18px;
+  padding: 18px 18px 22px;
+  border: 1px solid var(--line);
+}
+.sheet h2 { font-size: 28px; margin-bottom: 8px; }
+.sheet h3 { font-size: 18px; margin: 14px 0 4px; }
+.sheet p, .sheet li { color: var(--bone); font-size: 15px; }
+.sheet ul { margin: 0; padding-left: 18px; }
+
+@keyframes ripple {
+  0%, 100% { transform: translateY(0); opacity: .45; }
+  50% { transform: translateY(3px); opacity: .9; }
+}
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(calc(var(--shake, 4px) * -1), 1px); }
+  40% { transform: translate(var(--shake, 4px), -1px); }
+  60% { transform: translate(calc(var(--shake, 4px) * -0.5), 0); }
+  80% { transform: translate(calc(var(--shake, 4px) * 0.4), 1px); }
+}
+@keyframes float {
+  to { transform: translate(-50%, -140%); opacity: 0; }
+}
+@keyframes pop {
+  from { transform: scale(0.4); opacity: 1; }
+  to { transform: scale(1.6); opacity: 0; }
+}
+@keyframes flash {
+  0% { filter: brightness(2.2); }
+  100% { filter: none; }
+}
+@keyframes pip {
+  0% { transform: translateY(-4px); background: var(--danger); }
+  100% { transform: none; }
+}
+@keyframes ready {
+  50% { box-shadow: 0 0 0 3px var(--copper); }
+}
+
+@media (max-width: 860px) {
+  .battle-top .name { flex: 1 1 100%; }
+  .battle-top { gap: 6px; }
+  .hero { grid-template-columns: 1fr; min-height: auto; gap: 18px; }
+  .cards { grid-template-columns: 1fr; }
+  .battle {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "top"
+      "stage"
+      "dock";
+    padding: 8px 8px 20px;
+  }
+  .battle-top .name { font-size: 24px; }
+  .mechs { flex-direction: row; }
+  .unitcard {
+    position: sticky;
+    bottom: 8px;
+    z-index: 15;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  }
+  .compare { grid-template-columns: 1fr; }
+  .mech { flex: 1; grid-template-columns: 1fr; padding: 8px 6px; min-width: 0; }
+  .mech .mini-svg { display: none; }
+  .keys { display: none; }
+  .screen { padding: 18px 12px 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* КРОМКА — детерминированные правила боя.
+   Модуль не трогает DOM. Состояние не мутируется: apply возвращает копию. */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  root.KromkaLogic = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const SHELL_MIN = 2;
+  const SHELL_MAX = 4;
+  const PULL_MAX = 4;
+  const WIDTH = 8;
+  const HEIGHT = 8;
+
+  const DIRS = [
+    { id: 'N', x: 0, y: -1 },
+    { id: 'E', x: 1, y: 0 },
+    { id: 'S', x: 0, y: 1 },
+    { id: 'W', x: -1, y: 0 },
+  ];
+
+  const KINDS = {
+    klin: { side: 'player', move: 4, hp: 4, initiative: 0, weapon: 'strike', dmg: 1 },
+    duga: { side: 'player', move: 3, hp: 4, initiative: 0, weapon: 'shell', dmg: 1 },
+    kryuk: { side: 'player', move: 4, hp: 4, initiative: 0, weapon: 'pull', dmg: 0 },
+    scara: { side: 'enemy', move: 3, hp: 2, initiative: 2, weapon: 'jab', dmg: 1 },
+    needle: { side: 'enemy', move: 4, hp: 1, initiative: 3, weapon: 'lance', dmg: 1, length: 3 },
+    hammer: { side: 'enemy', move: 2, hp: 3, initiative: 1, weapon: 'slam', dmg: 2 },
+  };
+
+  function dirById(id) {
+    return DIRS.find((d) => d.id === id) || null;
+  }
+
+  function dirBetween(ax, ay, bx, by) {
+    const dx = bx - ax;
+    const dy = by - ay;
+    if (dx === 0 && dy === -1) return 'N';
+    if (dx === 1 && dy === 0) return 'E';
+    if (dx === 0 && dy === 1) return 'S';
+    if (dx === -1 && dy === 0) return 'W';
+    return null;
+  }
+
+  function inb(state, x, y) {
+    return x >= 0 && y >= 0 && x < state.w && y < state.h;
+  }
+
+  function tileAt(state, x, y) {
+    return state.tiles[y * state.w + x];
+  }
+
+  function unitById(state, id) {
+    return state.units.find((u) => u.id === id) || null;
+  }
+
+  function unitAt(state, x, y) {
+    return state.units.find((u) => u.x === x && u.y === y) || null;
+  }
+
+  function illegal(msg) {
+    const err = new Error(msg);
+    err.code = 'illegal';
+    throw err;
+  }
+
+  function cloneState(state) {
+    return {
+      id: state.id,
+      name: state.name,
+      w: state.w,
+      h: state.h,
+      maxTurn: state.maxTurn,
+      turn: state.turn,
+      status: state.status,
+      lossReason: state.lossReason,
+      gridHp: state.gridHp,
+      gridMax: state.gridMax,
+      kills: state.kills,
+      tiles: state.tiles.map((t) => ({ ...t })),
+      units: state.units.map((u) => ({ ...u })),
+      spawns: state.spawns.map((s) => ({ ...s })),
+    };
+  }
+
+  function parseMap(rows) {
+    if (!rows || rows.length !== HEIGHT) throw new Error('карта должна быть 8×8');
+    const tiles = [];
+    for (let y = 0; y < HEIGHT; y++) {
+      const row = rows[y];
+      if (row.length !== WIDTH) throw new Error('длина ряда ' + y);
+      for (let x = 0; x < WIDTH; x++) {
+        const ch = row[x];
+        const tile = { x, y, terrain: 'ground', hp: 0, maxHp: 0, spawn: false, objective: false, rubble: null };
+        if (ch === '.') {
+          /* ground */
+        } else if (ch === '~') {
+          tile.terrain = 'water';
+        } else if (ch === '#') {
+          tile.terrain = 'mountain';
+          tile.hp = 2;
+          tile.maxHp = 2;
+        } else if (ch === 'B') {
+          tile.terrain = 'building';
+          tile.hp = 1;
+          tile.maxHp = 1;
+        } else if (ch === 'R') {
+          tile.terrain = 'building';
+          tile.hp = 2;
+          tile.maxHp = 2;
+          tile.objective = true;
+        } else if (ch === 'S') {
+          tile.spawn = true;
+        } else {
+          throw new Error('неизвестный тайл ' + ch);
+        }
+        tiles.push(tile);
+      }
+    }
+    return tiles;
+  }
+
+  function actingOrder(units) {
+    return units
+      .filter((u) => u.side === 'enemy' && u.hp > 0)
+      .slice()
+      .sort((a, b) => {
+        if (b.initiative !== a.initiative) return b.initiative - a.initiative;
+        if (a.y !== b.y) return a.y - b.y;
+        if (a.x !== b.x) return a.x - b.x;
+        return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+      });
+  }
+
+  function assignOrders(state) {
+    let n = 1;
+    for (const enemy of actingOrder(state.units)) {
+      if (enemy.attacking) enemy.order = n++;
+      else enemy.order = 0;
+    }
+  }
+
+  function createBattle(def) {
+    const tiles = parseMap(def.map);
+    let gridMax = 0;
+    for (const t of tiles) if (t.terrain === 'building') gridMax += t.maxHp;
+    const units = [];
+    for (const spec of def.units || []) {
+      const kind = KINDS[spec.kind];
+      if (!kind) throw new Error('нет вида ' + spec.kind);
+      const unit = {
+        id: spec.id,
+        side: kind.side,
+        kind: spec.kind,
+        x: spec.x,
+        y: spec.y,
+        hp: spec.hp != null ? spec.hp : kind.hp,
+        maxHp: spec.hp != null ? spec.hp : kind.hp,
+        move: kind.move,
+        initiative: kind.initiative,
+        dir: spec.dir || (kind.side === 'enemy' ? 'S' : 'N'),
+        moved: false,
+        acted: false,
+        attacking: false,
+        order: 0,
+      };
+      if (kind.side === 'enemy') {
+        unit.attacking = spec.attacking != null ? !!spec.attacking : !!spec.dir;
+      }
+      if (!inb({ w: WIDTH, h: HEIGHT }, unit.x, unit.y)) throw new Error('юнит вне поля ' + unit.id);
+      const tile = tiles[unit.y * WIDTH + unit.x];
+      if (tile.terrain !== 'ground') throw new Error(unit.id + ' стоит на ' + tile.terrain);
+      if (units.some((u) => u.x === unit.x && u.y === unit.y)) throw new Error('две фигуры в клетке ' + unit.id);
+      units.push(unit);
+    }
+    const state = {
+      id: def.id,
+      name: def.name,
+      w: WIDTH,
+      h: HEIGHT,
+      maxTurn: def.maxTurn || 5,
+      turn: 1,
+      status: 'playing',
+      lossReason: null,
+      gridHp: gridMax,
+      gridMax,
+      kills: 0,
+      tiles,
+      units,
+      spawns: (def.spawns || []).map((s) => ({ ...s, done: false })),
+    };
+    assignOrders(state);
+    return state;
+  }
+
+  function evaluate(state) {
+    if (state.status !== 'playing') return;
+    if (state.gridMax > 0 && state.gridHp <= 0) {
+      state.status = 'lost';
+      state.lossReason = 'grid';
+      return;
+    }
+    if (!state.units.some((u) => u.side === 'player' && u.hp > 0)) {
+      state.status = 'lost';
+      state.lossReason = 'mechs';
+    }
+  }
+
+  function removeUnit(state, id) {
+    state.units = state.units.filter((u) => u.id !== id);
+  }
+
+  function killUnit(state, unit, events, cause) {
+    events.push({
+      t: 'death',
+      id: unit.id,
+      kind: unit.kind,
+      side: unit.side,
+      x: unit.x,
+      y: unit.y,
+      cause,
+    });
+    if (unit.side === 'enemy') state.kills += 1;
+    removeUnit(state, unit.id);
+    events.push({ t: 'shake', power: unit.side === 'player' ? 2 : 1 });
+  }
+
+  function damageUnit(state, unit, amount, events, cause, by) {
+    if (!unit || amount <= 0) return 0;
+    const live = unitById(state, unit.id);
+    if (!live) return 0;
+    const dealt = Math.min(live.hp, amount);
+    live.hp -= dealt;
+    events.push({
+      t: 'damage',
+      target: 'unit',
+      id: live.id,
+      kind: live.kind,
+      side: live.side,
+      amount: dealt,
+      hpLeft: live.hp,
+      x: live.x,
+      y: live.y,
+      lethal: live.hp <= 0,
+      cause: cause || 'hit',
+      by: by || null,
+    });
+    if (live.hp <= 0) killUnit(state, live, events, 'hp');
+    return dealt;
+  }
+
+  function damageTile(state, x, y, amount, events, by) {
+    if (!inb(state, x, y) || amount <= 0) return 0;
+    const tile = tileAt(state, x, y);
+    if (tile.terrain !== 'building' && tile.terrain !== 'mountain') return 0;
+    const dealt = Math.min(tile.hp, amount);
+    tile.hp -= dealt;
+    events.push({
+      t: 'damage',
+      target: 'tile',
+      terrain: tile.terrain,
+      amount: dealt,
+      hpLeft: tile.hp,
+      x,
+      y,
+      lethal: tile.hp <= 0,
+      objective: !!tile.objective,
+      by: by || null,
+    });
+    if (tile.terrain === 'building') {
+      state.gridHp -= dealt;
+      events.push({ t: 'grid', hp: state.gridHp, max: state.gridMax, delta: -dealt });
+    }
+    if (tile.hp <= 0) {
+      const was = tile.terrain;
+      const objective = !!tile.objective;
+      tile.terrain = 'ground';
+      tile.rubble = was;
+      tile.objective = false;
+      tile.hp = 0;
+      events.push({ t: 'terrain', x, y, terrain: 'ground', rubble: was, objective });
+      events.push({ t: 'shake', power: was === 'building' ? 3 : 2 });
+    } else if (tile.terrain === 'building') {
+      events.push({ t: 'shake', power: 1 });
+    }
+    return dealt;
+  }
+
+  function hurtCell(state, x, y, amount, events, by) {
+    const unit = unitAt(state, x, y);
+    if (unit) {
+      damageUnit(state, unit, amount, events, 'hit', by);
+      return 'unit';
+    }
+    const tile = tileAt(state, x, y);
+    if (tile.terrain === 'building' || tile.terrain === 'mountain') {
+      damageTile(state, x, y, amount, events, by);
+      return 'tile';
+    }
+    return null;
+  }
+
+  function pushUnit(state, unit, dir, events) {
+    const live = unitById(state, unit.id);
+    if (!live) return;
+    const d = dirById(dir);
+    const nx = live.x + d.x;
+    const ny = live.y + d.y;
+    const from = { x: live.x, y: live.y };
+    if (!inb(state, nx, ny)) {
+      damageUnit(state, live, 1, events, 'bump', null);
+      events.push({ t: 'bump', id: live.id, x: live.x, y: live.y, dir, edge: true });
+      events.push({ t: 'shake', power: 1 });
+      return;
+    }
+    const other = unitAt(state, nx, ny);
+    if (other && other.id !== live.id) {
+      damageUnit(state, live, 1, events, 'bump', null);
+      const otherLive = unitById(state, other.id);
+      if (otherLive) damageUnit(state, otherLive, 1, events, 'bump', null);
+      events.push({ t: 'bump', id: unit.id, otherId: other.id, x: nx, y: ny, dir, edge: false });
+      events.push({ t: 'shake', power: 1 });
+      return;
+    }
+    const tile = tileAt(state, nx, ny);
+    if (tile.terrain === 'mountain' || tile.terrain === 'building') {
+      damageUnit(state, live, 1, events, 'bump', null);
+      damageTile(state, nx, ny, 1, events, live.id);
+      events.push({ t: 'bump', id: unit.id, x: nx, y: ny, dir, terrain: tile.terrain, edge: false });
+      events.push({ t: 'shake', power: 1 });
+      return;
+    }
+    if (tile.terrain === 'water') {
+      events.push({ t: 'push', id: live.id, from, to: { x: nx, y: ny }, dir, into: 'water' });
+      live.x = nx;
+      live.y = ny;
+      killUnit(state, live, events, 'water');
+      return;
+    }
+    events.push({ t: 'push', id: live.id, from, to: { x: nx, y: ny }, dir, into: 'ground' });
+    live.x = nx;
+    live.y = ny;
+  }
+
+  function walkable(state, x, y) {
+    if (!inb(state, x, y)) return false;
+    const tile = tileAt(state, x, y);
+    if (tile.terrain !== 'ground') return false;
+    if (unitAt(state, x, y)) return false;
+    return true;
+  }
+
+  function pathTo(state, unitId, tx, ty) {
+    const unit = unitById(state, unitId);
+    if (!unit || !inb(state, tx, ty)) return null;
+    if (unit.x === tx && unit.y === ty) return [{ x: unit.x, y: unit.y }];
+    const prev = new Map();
+    const startKey = unit.x + ',' + unit.y;
+    prev.set(startKey, null);
+    const q = [[unit.x, unit.y, 0]];
+    let found = false;
+    while (q.length) {
+      const [x, y, dist] = q.shift();
+      if (dist >= unit.move) continue;
+      for (const d of DIRS) {
+        const nx = x + d.x;
+        const ny = y + d.y;
+        const key = nx + ',' + ny;
+        if (prev.has(key)) continue;
+        if (!inb(state, nx, ny)) continue;
+        if (unitAt(state, nx, ny)) continue;
+        const tile = tileAt(state, nx, ny);
+        if (tile.terrain !== 'ground') continue;
+        prev.set(key, { x, y });
+        if (nx === tx && ny === ty) {
+          found = true;
+          q.length = 0;
+          break;
+        }
+        q.push([nx, ny, dist + 1]);
+      }
+    }
+    if (!found) return null;
+    const path = [{ x: tx, y: ty }];
+    let cur = prev.get(tx + ',' + ty);
+    while (cur) {
+      path.push(cur);
+      cur = prev.get(cur.x + ',' + cur.y);
+    }
+    path.reverse();
+    if (path.length - 1 > unit.move) return null;
+    return path;
+  }
+
+  function reachable(state, unitId) {
+    const unit = unitById(state, unitId);
+    if (!unit || unit.hp <= 0) return [];
+    if (unit.side === 'player' && (unit.moved || unit.acted)) return [];
+    const out = [{ x: unit.x, y: unit.y, dist: 0 }];
+    const seen = new Set([unit.x + ',' + unit.y]);
+    const q = [[unit.x, unit.y, 0]];
+    while (q.length) {
+      const [x, y, dist] = q.shift();
+      if (dist >= unit.move) continue;
+      for (const d of DIRS) {
+        const nx = x + d.x;
+        const ny = y + d.y;
+        const key = nx + ',' + ny;
+        if (seen.has(key) || !inb(state, nx, ny)) continue;
+        if (unitAt(state, nx, ny)) continue;
+        if (tileAt(state, nx, ny).terrain !== 'ground') continue;
+        seen.add(key);
+        q.push([nx, ny, dist + 1]);
+        out.push({ x: nx, y: ny, dist: dist + 1 });
+      }
+    }
+    return out;
+  }
+
+  function weaponTargets(state, unitId) {
+    const unit = unitById(state, unitId);
+    if (!unit || unit.hp <= 0 || unit.side !== 'player' || unit.acted) return [];
+    if (unit.kind === 'klin') {
+      const res = [];
+      for (const d of DIRS) {
+        const x = unit.x + d.x;
+        const y = unit.y + d.y;
+        if (!inb(state, x, y)) continue;
+        const occ = unitAt(state, x, y);
+        const tile = tileAt(state, x, y);
+        if (occ || tile.terrain === 'building' || tile.terrain === 'mountain') {
+          res.push({ x, y, mode: occ ? 'unit' : 'terrain' });
+        }
+      }
+      return res;
+    }
+    if (unit.kind === 'duga') {
+      const res = [];
+      for (let y = 0; y < state.h; y++) {
+        for (let x = 0; x < state.w; x++) {
+          const dist = Math.max(Math.abs(x - unit.x), Math.abs(y - unit.y));
+          if (dist >= SHELL_MIN && dist <= SHELL_MAX) res.push({ x, y, mode: 'shell' });
+        }
+      }
+      return res;
+    }
+    if (unit.kind === 'kryuk') {
+      const res = [];
+      for (const d of DIRS) {
+        for (let i = 1; i <= PULL_MAX; i++) {
+          const x = unit.x + d.x * i;
+          const y = unit.y + d.y * i;
+          if (!inb(state, x, y)) break;
+          const occ = unitAt(state, x, y);
+          if (occ) {
+            res.push({ x, y, mode: 'pull', unitId: occ.id });
+            break;
+          }
+          const tile = tileAt(state, x, y);
+          if (tile.terrain === 'building' || tile.terrain === 'mountain') break;
+        }
+      }
+      return res;
+    }
+    return [];
+  }
+
+  function doMove(state, cmd, events) {
+    const unit = unitById(state, cmd.unitId);
+    if (!unit || unit.side !== 'player' || unit.hp <= 0) illegal('нет станка');
+    if (unit.moved || unit.acted) illegal('уже ходил');
+    if (unit.x === cmd.x && unit.y === cmd.y) illegal('та же клетка');
+    const path = pathTo(state, unit.id, cmd.x, cmd.y);
+    if (!path) illegal('нет пути');
+    const last = path[path.length - 2] || path[0];
+    const face = dirBetween(last.x, last.y, cmd.x, cmd.y);
+    events.push({ t: 'move', id: unit.id, path, side: 'player', kind: unit.kind });
+    unit.x = cmd.x;
+    unit.y = cmd.y;
+    if (face) unit.dir = face;
+    unit.moved = true;
+  }
+
+  function strike(state, unit, tx, ty, events) {
+    const dir = dirBetween(unit.x, unit.y, tx, ty);
+    if (!dir) illegal('клин бьёт только рядом');
+    const occ = unitAt(state, tx, ty);
+    const tile = tileAt(state, tx, ty);
+    if (!occ && tile.terrain !== 'building' && tile.terrain !== 'mountain') illegal('нечего бить');
+    events.push({
+      t: 'shot',
+      kind: 'jab',
+      from: { x: unit.x, y: unit.y },
+      to: { x: tx, y: ty },
+      dir,
+      by: unit.id,
+    });
+    unit.dir = dir;
+    if (occ) {
+      const id = occ.id;
+      damageUnit(state, occ, 1, events, 'hit', unit.id);
+      const still = unitById(state, id);
+      if (still) pushUnit(state, still, dir, events);
+    } else {
+      damageTile(state, tx, ty, 1, events, unit.id);
+    }
+  }
+
+  function shell(state, unit, tx, ty, events) {
+    const dist = Math.max(Math.abs(tx - unit.x), Math.abs(ty - unit.y));
+    if (dist < SHELL_MIN || dist > SHELL_MAX) illegal('вне дуги');
+    if (!inb(state, tx, ty)) illegal('вне поля');
+    const face = dirBetween(unit.x, unit.y, tx, ty) || (Math.abs(tx - unit.x) >= Math.abs(ty - unit.y)
+      ? (tx > unit.x ? 'E' : 'W')
+      : (ty > unit.y ? 'S' : 'N'));
+    unit.dir = face;
+    events.push({
+      t: 'shot',
+      kind: 'shell',
+      from: { x: unit.x, y: unit.y },
+      to: { x: tx, y: ty },
+      dir: face,
+      by: unit.id,
+    });
+    const snaps = DIRS.map((d) => {
+      const x = tx + d.x;
+      const y = ty + d.y;
+      if (!inb(state, x, y)) return { dir: d.id, id: null };
+      const occ = unitAt(state, x, y);
+      return { dir: d.id, id: occ ? occ.id : null };
+    });
+    hurtCell(state, tx, ty, 1, events, unit.id);
+    for (const snap of snaps) {
+      if (!snap.id) continue;
+      const occ = unitById(state, snap.id);
+      if (!occ) continue;
+      pushUnit(state, occ, snap.dir, events);
+    }
+  }
+
+  function pull(state, unit, tx, ty, events) {
+    const target = unitAt(state, tx, ty);
+    if (!target) illegal('некого тянуть');
+    if (target.id === unit.id) illegal('себя');
+    const dx = Math.sign(tx - unit.x);
+    const dy = Math.sign(ty - unit.y);
+    if ((dx !== 0 && dy !== 0) || (dx === 0 && dy === 0)) illegal('не по прямой');
+    const dist = Math.abs(tx - unit.x) + Math.abs(ty - unit.y);
+    if (dist > PULL_MAX) illegal('далеко');
+    for (let i = 1; i < dist; i++) {
+      const x = unit.x + dx * i;
+      const y = unit.y + dy * i;
+      if (unitAt(state, x, y)) illegal('цепь занята');
+      const tile = tileAt(state, x, y);
+      if (tile.terrain === 'building' || tile.terrain === 'mountain') illegal('цепь заперта');
+    }
+    const toward = dirBetween(tx, ty, tx - dx, ty - dy);
+    unit.dir = dirBetween(unit.x, unit.y, tx, ty) || unit.dir;
+    events.push({
+      t: 'shot',
+      kind: 'hook',
+      from: { x: unit.x, y: unit.y },
+      to: { x: tx, y: ty },
+      dir: unit.dir,
+      by: unit.id,
+    });
+    pushUnit(state, target, toward, events);
+  }
+
+  function doAct(state, cmd, events) {
+    const unit = unitById(state, cmd.unitId);
+    if (!unit || unit.side !== 'player' || unit.hp <= 0) illegal('нет станка');
+    if (unit.acted) illegal('уже ударил');
+    if (unit.kind === 'klin') strike(state, unit, cmd.x, cmd.y, events);
+    else if (unit.kind === 'duga') shell(state, unit, cmd.x, cmd.y, events);
+    else if (unit.kind === 'kryuk') pull(state, unit, cmd.x, cmd.y, events);
+    else illegal('нет оружия');
+    const still = unitById(state, unit.id);
+    if (still) {
+      still.acted = true;
+      still.moved = true;
+    }
+  }
+
+  function doWait(state, cmd, events) {
+    const unit = unitById(state, cmd.unitId);
+    if (!unit || unit.side !== 'player' || unit.hp <= 0) illegal('нет станка');
+    if (unit.acted && unit.moved) illegal('уже закончил');
+    unit.acted = true;
+    unit.moved = true;
+    events.push({ t: 'wait', id: unit.id });
+  }
+
+  function rayTiles(state, origin, dir, length) {
+    const d = dirById(dir);
+    const tiles = [];
+    for (let i = 1; i <= length; i++) {
+      const x = origin.x + d.x * i;
+      const y = origin.y + d.y * i;
+      if (!inb(state, x, y)) break;
+      tiles.push({ x, y });
+    }
+    return tiles;
+  }
+
+  function telegraph(state, unit) {
+    if (!unit || !unit.attacking || unit.hp <= 0) return null;
+    const kind = KINDS[unit.kind];
+    const dir = unit.dir;
+    if (kind.weapon === 'jab' || kind.weapon === 'slam') {
+      const p = {
+        x: unit.x + dirById(dir).x,
+        y: unit.y + dirById(dir).y,
+      };
+      const tiles = inb(state, p.x, p.y) ? [p] : [];
+      let impact = null;
+      if (tiles.length) {
+        const occ = unitAt(state, p.x, p.y);
+        const tile = tileAt(state, p.x, p.y);
+        if (occ || tile.terrain === 'building' || tile.terrain === 'mountain') {
+          impact = { x: p.x, y: p.y, damage: kind.dmg, what: occ ? 'unit' : tile.terrain };
+        }
+      }
+      return { id: unit.id, dir, order: unit.order, damage: kind.dmg, tiles, impact, weapon: kind.weapon };
+    }
+    if (kind.weapon === 'lance') {
+      const tiles = rayTiles(state, unit, dir, kind.length);
+      let impact = null;
+      for (const p of tiles) {
+        const occ = unitAt(state, p.x, p.y);
+        const tile = tileAt(state, p.x, p.y);
+        if (occ || tile.terrain === 'building' || tile.terrain === 'mountain') {
+          impact = { x: p.x, y: p.y, damage: kind.dmg, what: occ ? 'unit' : tile.terrain };
+          break;
+        }
+      }
+      return { id: unit.id, dir, order: unit.order, damage: kind.dmg, tiles, impact, weapon: 'lance' };
+    }
+    return null;
+  }
+
+  function fireAttack(state, enemy, events) {
+    const info = telegraph(state, enemy);
+    const kind = KINDS[enemy.kind];
+    if (kind.weapon === 'jab' || kind.weapon === 'slam') {
+      const d = dirById(enemy.dir);
+      const p = { x: enemy.x + d.x, y: enemy.y + d.y };
+      events.push({ t: 'shot', kind: kind.weapon, from: { x: enemy.x, y: enemy.y }, to: p, dir: enemy.dir, by: enemy.id, tiles: info ? info.tiles : [] });
+      if (!inb(state, p.x, p.y)) {
+        events.push({ t: 'whiff', by: enemy.id });
+        return;
+      }
+      const hit = hurtCell(state, p.x, p.y, kind.dmg, events, enemy.id);
+      if (!hit) events.push({ t: 'whiff', by: enemy.id });
+      return;
+    }
+    if (kind.weapon === 'lance') {
+      const tiles = rayTiles(state, enemy, enemy.dir, kind.length);
+      const last = tiles[tiles.length - 1] || { x: enemy.x, y: enemy.y };
+      events.push({
+        t: 'shot',
+        kind: 'lance',
+        from: { x: enemy.x, y: enemy.y },
+        to: last,
+        dir: enemy.dir,
+        by: enemy.id,
+        tiles,
+      });
+      for (const p of tiles) {
+        const occ = unitAt(state, p.x, p.y);
+        const tile = tileAt(state, p.x, p.y);
+        if (occ || tile.terrain === 'building' || tile.terrain === 'mountain') {
+          hurtCell(state, p.x, p.y, kind.dmg, events, enemy.id);
+          return;
+        }
+      }
+      events.push({ t: 'whiff', by: enemy.id });
+    }
+  }
+
+  function resolveAttacks(state, events) {
+    events.push({ t: 'marker', id: 'resolve' });
+    const list = state.units
+      .filter((u) => u.side === 'enemy' && u.attacking && u.hp > 0)
+      .slice()
+      .sort((a, b) => a.order - b.order || a.y - b.y || a.x - b.x);
+    for (const enemy of list) {
+      const live = unitById(state, enemy.id);
+      if (!live || !live.attacking) continue;
+      fireAttack(state, live, events);
+      const after = unitById(state, enemy.id);
+      if (after) after.attacking = false;
+      evaluate(state);
+      if (state.status !== 'playing') return;
+    }
+  }
+
+  function runSpawns(state, events) {
+    const due = state.spawns.filter((s) => !s.done && s.afterTurn === state.turn);
+    if (!due.length) return;
+    events.push({ t: 'marker', id: 'spawn' });
+    for (const spec of due) {
+      spec.done = true;
+      const tile = inb(state, spec.x, spec.y) ? tileAt(state, spec.x, spec.y) : null;
+      if (!tile || tile.terrain !== 'ground') continue;
+      const occ = unitAt(state, spec.x, spec.y);
+      if (occ) {
+        state.kills += 1;
+        events.push({ t: 'spawn-block', x: spec.x, y: spec.y, blockerId: occ.id, kind: spec.kind });
+        damageUnit(state, occ, 1, events, 'spawn', null);
+        events.push({ t: 'shake', power: 1 });
+        evaluate(state);
+        if (state.status !== 'playing') return;
+        continue;
+      }
+      const kind = KINDS[spec.kind];
+      const id = 'spawn-' + state.turn + '-' + spec.x + '-' + spec.y + '-' + spec.kind;
+      state.units.push({
+        id,
+        side: 'enemy',
+        kind: spec.kind,
+        x: spec.x,
+        y: spec.y,
+        hp: kind.hp,
+        maxHp: kind.hp,
+        move: kind.move,
+        initiative: kind.initiative,
+        dir: 'N',
+        moved: false,
+        acted: false,
+        attacking: false,
+        order: 0,
+      });
+      events.push({ t: 'spawn', id, x: spec.x, y: spec.y, kind: spec.kind });
+    }
+  }
+
+  function scoreStrikeFrom(state, enemy, spot, dir) {
+    const kind = KINDS[enemy.kind];
+    const d = dirById(dir);
+    let score = 0;
+    const cells = [];
+    if (kind.weapon === 'lance') {
+      for (let i = 1; i <= kind.length; i++) {
+        const x = spot.x + d.x * i;
+        const y = spot.y + d.y * i;
+        if (!inb(state, x, y)) break;
+        cells.push({ x, y });
+      }
+    } else {
+      const x = spot.x + d.x;
+      const y = spot.y + d.y;
+      if (inb(state, x, y)) cells.push({ x, y });
+    }
+    for (const p of cells) {
+      const occ = unitAt(state, p.x, p.y);
+      if (occ && occ.id !== enemy.id) {
+        if (occ.side === 'player') score += 40 * Math.min(occ.hp, kind.dmg);
+        else score -= 30;
+        break;
+      }
+      const tile = tileAt(state, p.x, p.y);
+      if (tile.terrain === 'building') {
+        score += 100 * Math.min(tile.hp, kind.dmg);
+        break;
+      }
+      if (tile.terrain === 'mountain') {
+        score += 1;
+        break;
+      }
+    }
+    let best = 99;
+    for (const tile of state.tiles) {
+      if (tile.terrain !== 'building') continue;
+      const dist = Math.abs(tile.x - spot.x) + Math.abs(tile.y - spot.y);
+      if (dist < best) best = dist;
+    }
+    score += (14 - best) * 0.01;
+    return score;
+  }
+
+  function bestPlan(state, enemy) {
+    const spots = reachable(state, enemy.id);
+    let best = null;
+    for (const spot of spots) {
+      for (const d of DIRS) {
+        const score = scoreStrikeFrom(state, enemy, spot, d.id);
+        const cand = { spot, dir: d.id, score, dist: spot.dist };
+        if (!best || cand.score > best.score + 1e-9) best = cand;
+        else if (Math.abs(cand.score - best.score) <= 1e-9) {
+          if (cand.dist < best.dist) best = cand;
+          else if (cand.dist === best.dist && (cand.spot.y < best.spot.y || (cand.spot.y === best.spot.y && cand.spot.x < best.spot.x))) best = cand;
+          else if (cand.dist === best.dist && cand.spot.x === best.spot.x && cand.spot.y === best.spot.y && DIRS.findIndex((x) => x.id === cand.dir) < DIRS.findIndex((x) => x.id === best.dir)) best = cand;
+        }
+      }
+    }
+    return best || { spot: { x: enemy.x, y: enemy.y, dist: 0 }, dir: enemy.dir || 'N', score: 0, dist: 0 };
+  }
+
+  function planEnemies(state, events) {
+    events.push({ t: 'marker', id: 'plan' });
+    const list = actingOrder(state.units);
+    let n = 1;
+    for (const enemy of list) {
+      const live = unitById(state, enemy.id);
+      if (!live) continue;
+      const plan = bestPlan(state, live);
+      if (plan.spot.x !== live.x || plan.spot.y !== live.y) {
+        const path = pathTo(state, live.id, plan.spot.x, plan.spot.y);
+        if (path && path.length > 1) {
+          events.push({ t: 'move', id: live.id, path, side: 'enemy', kind: live.kind });
+          const prev = path[path.length - 2];
+          const face = dirBetween(prev.x, prev.y, plan.spot.x, plan.spot.y);
+          live.x = plan.spot.x;
+          live.y = plan.spot.y;
+          if (face) live.dir = face;
+        }
+      }
+      live.dir = plan.dir;
+      live.attacking = true;
+      live.order = n++;
+      events.push({ t: 'telegraph', id: live.id, dir: live.dir, order: live.order });
+    }
+  }
+
+  function doEnd(state, events) {
+    resolveAttacks(state, events);
+    if (state.status !== 'playing') return;
+    if (state.turn >= state.maxTurn) {
+      state.status = 'won';
+      events.push({ t: 'marker', id: 'win' });
+      return;
+    }
+    runSpawns(state, events);
+    if (state.status !== 'playing') return;
+    planEnemies(state, events);
+    state.turn += 1;
+    for (const unit of state.units) {
+      if (unit.side === 'player') {
+        unit.moved = false;
+        unit.acted = false;
+      }
+    }
+    events.push({ t: 'marker', id: 'player', turn: state.turn });
+  }
+
+  function apply(state, cmd) {
+    if (!cmd || !cmd.type) return { ok: false, error: 'пустая команда' };
+    if (state.status !== 'playing') return { ok: false, error: 'бой окончен' };
+    const next = cloneState(state);
+    const events = [];
+    try {
+      if (cmd.type === 'move') doMove(next, cmd, events);
+      else if (cmd.type === 'act') doAct(next, cmd, events);
+      else if (cmd.type === 'wait') doWait(next, cmd, events);
+      else if (cmd.type === 'end') doEnd(next, events);
+      else return { ok: false, error: 'неизвестная команда' };
+    } catch (err) {
+      if (err.code === 'illegal') return { ok: false, error: err.message };
+      throw err;
+    }
+    evaluate(next);
+    return { ok: true, state: next, events };
+  }
+
+  function applyAll(state, cmds) {
+    let cur = state;
+    const events = [];
+    for (const cmd of cmds) {
+      const result = apply(cur, cmd);
+      if (!result.ok) return { ok: false, error: result.error, at: cmd, state: cur, events };
+      cur = result.state;
+      events.push(...result.events);
+    }
+    return { ok: true, state: cur, events };
+  }
+
+  function previewResolution(state) {
+    const next = cloneState(state);
+    const events = [];
+    resolveAttacks(next, events);
+    evaluate(next);
+    return { state: next, events, gridLost: state.gridHp - next.gridHp };
+  }
+
+  function createSession(def) {
+    const state = createBattle(def);
+    return { state, past: [], turnStart: cloneState(state) };
+  }
+
+  function dispatch(session, cmd) {
+    if (cmd.type === 'undo') {
+      if (!session.past.length) return { ok: false, error: 'нечего отменять', session, events: [] };
+      session.state = session.past.pop();
+      return { ok: true, session, events: [], state: session.state };
+    }
+    if (cmd.type === 'reset') {
+      session.state = cloneState(session.turnStart);
+      session.past = [];
+      return { ok: true, session, events: [], state: session.state };
+    }
+    if (session.state.status !== 'playing') return { ok: false, error: 'бой окончен', session, events: [] };
+    const result = apply(session.state, cmd);
+    if (!result.ok) return { ...result, session };
+    if (cmd.type === 'end') {
+      session.state = result.state;
+      session.past = [];
+      session.turnStart = cloneState(result.state);
+    } else {
+      session.past.push(session.state);
+      session.state = result.state;
+    }
+    return { ok: true, session, state: result.state, events: result.events };
+  }
+
+  function scoreBreakdown(state) {
+    const grid = Math.max(0, state.gridHp);
+    const mechs = state.units.filter((u) => u.side === 'player' && u.hp > 0).length;
+    const kills = state.kills;
+    return {
+      grid,
+      gridMax: state.gridMax,
+      mechs,
+      kills,
+      total: grid * 100 + kills * 25 + mechs * 50,
+    };
+  }
+
+  function livingPlayers(state) {
+    return state.units.filter((u) => u.side === 'player' && u.hp > 0);
+  }
+
+  return {
+    SHELL_MIN,
+    SHELL_MAX,
+    PULL_MAX,
+    DIRS,
+    KINDS,
+    createBattle,
+    cloneState,
+    apply,
+    applyAll,
+    createSession,
+    dispatch,
+    telegraph,
+    previewResolution,
+    reachable,
+    weaponTargets,
+    pathTo,
+    scoreBreakdown,
+    tileAt,
+    unitAt,
+    unitById,
+    livingPlayers,
+    inb,
+    walkable,
+  };
+});
+
+/* Три авторских боя. Буквы карты — только местность; станки и изломы заданы списком.
+   . земля  ~ провал  # утёс  B цех  R узел  S разлом */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  root.KromkaBattles = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const BATTLES = [
+    {
+      id: 'obryv',
+      name: 'Обрыв',
+      rating: 'учебный',
+      blurb: 'Учёба с первого запуска. Два врага целятся в здания.',
+      map: [
+        '~~...#..',
+        '~..B....',
+        '~.....B.',
+        '~......~',
+        '........',
+        '.#......',
+        '.B..R.B.',
+        '...S...S',
+      ],
+      units: [
+        { id: 'duga', kind: 'duga', x: 1, y: 2, dir: 'E' },
+        { id: 'needle', kind: 'needle', x: 3, y: 3, dir: 'N' },
+        { id: 'scara', kind: 'scara', x: 6, y: 3, dir: 'N' },
+        { id: 'kryuk', kind: 'kryuk', x: 4, y: 4, dir: 'N' },
+        { id: 'hammer', kind: 'hammer', x: 2, y: 5, dir: 'W' },
+        { id: 'klin', kind: 'klin', x: 5, y: 5, dir: 'N' },
+      ],
+      spawns: [
+        { afterTurn: 1, x: 3, y: 7, kind: 'scara' },
+        { afterTurn: 2, x: 7, y: 7, kind: 'needle' },
+        { afterTurn: 3, x: 3, y: 7, kind: 'hammer' },
+        { afterTurn: 4, x: 7, y: 7, kind: 'scara' },
+      ],
+      tutorial: true,
+      /* Линия первого хода, которой учит подсказка. Решатель её не читает. */
+      lesson: [
+        { type: 'move', unitId: 'klin', x: 5, y: 3 },
+        { type: 'act', unitId: 'klin', x: 6, y: 3 },
+        { type: 'act', unitId: 'duga', x: 3, y: 3 },
+      ],
+    },
+    {
+      id: 'dvor',
+      name: 'Двор',
+      rating: 'средний',
+      blurb: 'Игла бьёт в большое здание, жук — в обычное. Дуге надо подойти.',
+      map: [
+        '#....~~.',
+        '.....~..',
+        '........',
+        '.B....B.',
+        '....R...',
+        '..#.....',
+        '........',
+        'S..B..S.',
+      ],
+      units: [
+        { id: 'scara', kind: 'scara', x: 1, y: 2, dir: 'S' },
+        { id: 'needle', kind: 'needle', x: 4, y: 2, dir: 'S' },
+        { id: 'klin', kind: 'klin', x: 0, y: 5, dir: 'N' },
+        { id: 'hammer', kind: 'hammer', x: 3, y: 5, dir: 'W' },
+        { id: 'kryuk', kind: 'kryuk', x: 4, y: 6, dir: 'N' },
+        { id: 'duga', kind: 'duga', x: 7, y: 7, dir: 'N' },
+      ],
+      spawns: [
+        { afterTurn: 1, x: 0, y: 7, kind: 'needle' },
+        { afterTurn: 2, x: 6, y: 7, kind: 'scara' },
+        { afterTurn: 3, x: 0, y: 7, kind: 'hammer' },
+        { afterTurn: 4, x: 6, y: 7, kind: 'scara' },
+      ],
+      tutorial: false,
+      lesson: [
+        { type: 'move', unitId: 'duga', x: 7, y: 4 },
+        { type: 'act', unitId: 'duga', x: 4, y: 2 },
+        { type: 'move', unitId: 'klin', x: 0, y: 2 },
+        { type: 'act', unitId: 'klin', x: 1, y: 2 },
+      ],
+    },
+    {
+      id: 'kotel',
+      name: 'Котёл',
+      rating: 'тяжёлый',
+      blurb: 'Три врага бьют по трём зданиям. Крюк тянет молота через яму.',
+      map: [
+        'B......#',
+        '........',
+        '~.......',
+        '........',
+        '....B.B.',
+        '........',
+        '..B.R..B',
+        'S......S',
+      ],
+      units: [
+        { id: 'hammer', kind: 'hammer', x: 0, y: 1, dir: 'N' },
+        { id: 'needle', kind: 'needle', x: 6, y: 1, dir: 'S' },
+        { id: 'scara', kind: 'scara', x: 3, y: 4, dir: 'E' },
+        { id: 'kryuk', kind: 'kryuk', x: 2, y: 5, dir: 'W' },
+        { id: 'duga', kind: 'duga', x: 6, y: 5, dir: 'N' },
+        { id: 'klin', kind: 'klin', x: 3, y: 6, dir: 'N' },
+      ],
+      spawns: [
+        { afterTurn: 1, x: 0, y: 7, kind: 'scara' },
+        { afterTurn: 2, x: 7, y: 7, kind: 'needle' },
+        { afterTurn: 3, x: 0, y: 7, kind: 'hammer' },
+        { afterTurn: 4, x: 7, y: 7, kind: 'scara' },
+      ],
+      tutorial: false,
+      lesson: [
+        { type: 'move', unitId: 'kryuk', x: 0, y: 5 },
+        { type: 'act', unitId: 'kryuk', x: 0, y: 1 },
+        { type: 'move', unitId: 'klin', x: 3, y: 5 },
+        { type: 'act', unitId: 'klin', x: 3, y: 4 },
+        { type: 'act', unitId: 'duga', x: 6, y: 1 },
+      ],
+    },
+  ];
+
+  function battleById(id) {
+    return BATTLES.find((b) => b.id === id) || null;
+  }
+
+  return { BATTLES, battleById };
+});
+
+/* Пошаговое обучение боя «Обрыв».
+   Пока шаг не пройден, принимается только одно действие. */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  root.KromkaTutorial = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const STEPS = [
+    {
+      id: 'goal',
+      text: 'Цель: продержаться 5 ходов. Жёлтая шкала — энергия зданий. Если она кончится, вы проиграли.',
+      allow: { type: 'next' },
+      hot: { kind: 'energy' },
+    },
+    {
+      id: 'threats',
+      text: 'Красные клетки — куда враги ударят. Цифра на клетке — кто бьёт раньше. Нажмите «Дальше».',
+      allow: { type: 'next' },
+      hot: { kind: 'impacts' },
+    },
+    {
+      id: 'meet-klin',
+      text: 'Клин толкает соседа: 1 урон и толчок от себя. Карточка слева показывает схему. Нажмите «Дальше».',
+      allow: { type: 'next' },
+      hot: { kind: 'unit', id: 'klin' },
+    },
+    {
+      id: 'select-klin',
+      text: 'Нажмите меха «Клин». Он стоит рядом с врагом и толкает его.',
+      allow: { type: 'select', unitId: 'klin' },
+      hot: { kind: 'unit', id: 'klin' },
+    },
+    {
+      id: 'move-klin',
+      text: 'Синие клетки — куда мех может пойти. Нажмите мигающую: встаньте слева от жука.',
+      allow: { type: 'move', unitId: 'klin', x: 5, y: 3 },
+      hot: { kind: 'tile', x: 5, y: 3 },
+    },
+    {
+      id: 'preview-scara',
+      text: 'Нажмите красного жука. Слева появится прогноз удара — ещё ничего не случилось.',
+      allow: { type: 'arm', intent: 'act', x: 6, y: 3 },
+      hot: { kind: 'tile', x: 6, y: 3 },
+    },
+    {
+      id: 'why-push',
+      text: 'Толчок полезнее голого урона: удар врага уезжает вместе с ним. Этот жук упадёт в яму и пропадёт.',
+      allow: { type: 'next' },
+      hot: { kind: 'tile', x: 7, y: 3 },
+    },
+    {
+      id: 'confirm-scara',
+      text: 'Нажмите жёлтую кнопку «Ударить».',
+      allow: { type: 'confirm' },
+      hot: { kind: 'confirm' },
+    },
+    {
+      id: 'meet-duga',
+      text: 'Дуга другая: бьёт дугой издалека. Урон в центре, соседей толкает наружу, сквозь здания. Нажмите «Дальше».',
+      allow: { type: 'next' },
+      hot: { kind: 'unit', id: 'duga' },
+    },
+    {
+      id: 'select-duga',
+      text: 'Жук пропал, красная клетка за ним погасла. Теперь нажмите «Дугу».',
+      allow: { type: 'select', unitId: 'duga' },
+      hot: { kind: 'unit', id: 'duga' },
+    },
+    {
+      id: 'preview-needle',
+      text: 'Нажмите фиолетовую иглу. Прогноз покажет: игла уничтожена, здание больше не под ударом.',
+      allow: { type: 'arm', intent: 'act', x: 3, y: 3 },
+      hot: { kind: 'tile', x: 3, y: 3 },
+    },
+    {
+      id: 'confirm-needle',
+      text: 'Снова нажмите «Ударить».',
+      allow: { type: 'confirm' },
+      hot: { kind: 'confirm' },
+    },
+    {
+      id: 'meet-kryuk',
+      text: 'Крюк третий: тянет врага к себе по прямой. В этом ходу он может подождать. Нажмите «Дальше».',
+      allow: { type: 'next' },
+      hot: { kind: 'unit', id: 'kryuk' },
+    },
+    {
+      id: 'end-turn',
+      text: 'Здания больше не под красным. Молот бьёт гору — энергия не пострадает. Нажмите «Конец хода».',
+      allow: { type: 'end' },
+      hot: { kind: 'end' },
+    },
+    {
+      id: 'watch',
+      text: 'Враги бьют по номерам. Гора приняла удар, энергия цела. Дальше играйте сами. Нажмите «Дальше».',
+      allow: { type: 'next' },
+      hot: { kind: 'next' },
+    },
+  ];
+
+  function createRun() {
+    return { index: 0, done: false, skipped: false };
+  }
+
+  function current(run) {
+    if (!run || run.done) return null;
+    return STEPS[run.index] || null;
+  }
+
+  function allows(step, action) {
+    if (!step || !action) return false;
+    const want = step.allow;
+    if (!want || want.type !== action.type) return false;
+    if (want.unitId && want.unitId !== action.unitId) return false;
+    if (want.intent && want.intent !== action.intent) return false;
+    if (want.x != null && (Number(want.x) !== Number(action.x) || Number(want.y) !== Number(action.y))) return false;
+    return true;
+  }
+
+  function advance(run, action) {
+    const step = current(run);
+    if (!step) return { ok: false, run: run, reason: 'нет шага' };
+    if (!allows(step, action)) return { ok: false, run: run, reason: 'закрыто', index: run.index };
+    run.index += 1;
+    if (run.index >= STEPS.length) run.done = true;
+    return { ok: true, run: run, done: run.done, index: run.index };
+  }
+
+  function skip(run) {
+    if (!run) return null;
+    run.done = true;
+    run.skipped = true;
+    return run;
+  }
+
+  return { STEPS, createRun, current, allows, advance, skip };
+});
+
+/* Паспорта юнитов: роль, цвет, схема удара.
+   Схема — маленькая сетка. Стрелка смотрит туда, куда сдвинется цель. */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  root.KromkaUnits = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const PROFILES = {
+    klin: {
+      name: 'Клин',
+      role: 'Толкает соседа',
+      side: 'player',
+      move: 4,
+      hp: 4,
+      accent: '#e2a15a',
+      icon: 'push',
+      diagram: {
+        size: 3,
+        note: '1 урон и толчок от себя',
+        cells: [
+          { x: 1, y: 1, kind: 'self' },
+          { x: 1, y: 0, kind: 'dmg', arrow: 'N', amount: 1 },
+        ],
+      },
+    },
+    duga: {
+      name: 'Дуга',
+      role: 'Бьёт дугой издалека',
+      side: 'player',
+      move: 3,
+      hp: 4,
+      accent: '#ffb15a',
+      icon: 'arc',
+      diagram: {
+        size: 5,
+        note: 'Дуга 2–4: урон в центре, толчок наружу',
+        range: [2, 4],
+        cells: [
+          { x: 2, y: 2, kind: 'dmg', amount: 1 },
+          { x: 2, y: 1, kind: 'push', arrow: 'N' },
+          { x: 3, y: 2, kind: 'push', arrow: 'E' },
+          { x: 2, y: 3, kind: 'push', arrow: 'S' },
+          { x: 1, y: 2, kind: 'push', arrow: 'W' },
+        ],
+      },
+    },
+    kryuk: {
+      name: 'Крюк',
+      role: 'Тянет по прямой',
+      side: 'player',
+      move: 4,
+      hp: 4,
+      accent: '#3ec8c0',
+      icon: 'hook',
+      diagram: {
+        size: 5,
+        note: 'Тянет цель на 1 клетку к себе',
+        cells: [
+          { x: 1, y: 2, kind: 'self' },
+          { x: 3, y: 2, kind: 'pull', arrow: 'W' },
+        ],
+      },
+    },
+    scara: {
+      name: 'Жук',
+      role: 'Бьёт соседа',
+      side: 'enemy',
+      move: 3,
+      hp: 2,
+      accent: '#e23d55',
+      icon: 'jab',
+      diagram: {
+        size: 3,
+        note: '1 урон соседней клетке',
+        cells: [
+          { x: 1, y: 1, kind: 'self' },
+          { x: 1, y: 0, kind: 'dmg', amount: 1 },
+        ],
+      },
+    },
+    needle: {
+      name: 'Игла',
+      role: 'Луч на три клетки',
+      side: 'enemy',
+      move: 4,
+      hp: 1,
+      accent: '#c97bff',
+      icon: 'lance',
+      diagram: {
+        size: 5,
+        note: 'Луч на 3, бьёт первую преграду',
+        cells: [
+          { x: 2, y: 4, kind: 'self' },
+          { x: 2, y: 3, kind: 'ray' },
+          { x: 2, y: 2, kind: 'ray' },
+          { x: 2, y: 1, kind: 'dmg', amount: 1 },
+        ],
+      },
+    },
+    hammer: {
+      name: 'Молот',
+      role: 'Сильный удар рядом',
+      side: 'enemy',
+      move: 2,
+      hp: 3,
+      accent: '#e07a3a',
+      icon: 'slam',
+      diagram: {
+        size: 3,
+        note: '2 урона соседней клетке',
+        cells: [
+          { x: 1, y: 1, kind: 'self' },
+          { x: 1, y: 0, kind: 'dmg', amount: 2 },
+        ],
+      },
+    },
+  };
+
+  function profile(kind) {
+    return PROFILES[kind] || null;
+  }
+
+  function cellAt(kind, x, y) {
+    const diagram = profile(kind).diagram;
+    return diagram.cells.find((cell) => cell.x === x && cell.y === y) || null;
+  }
+
+  function describeHit(unit, impact) {
+    if (!unit || !unit.attacking) return 'Сейчас не целится.';
+    if (!impact) return 'Сейчас удар №' + unit.order + ' пройдёт мимо.';
+    const name = impact.what === 'building' ? 'здание' : impact.what === 'mountain' ? 'гору' : 'фигуру';
+    return 'Сейчас удар №' + unit.order + ': бьёт ' + name + '.';
+  }
+
+  return { PROFILES, profile, cellAt, describeHit };
+});
+
+/* КРОМКА — отрисовка и ввод. Правила живут в logic.js. */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  root.KromkaView = api;
+  if (typeof document !== 'undefined') {
+    const start = () => api.mount(document.getElementById('app'));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+    else start();
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const NAME = {
+    klin: 'Клин',
+    duga: 'Дуга',
+    kryuk: 'Крюк',
+    scara: 'Жук',
+    needle: 'Игла',
+    hammer: 'Молот',
+  };
+  const TAG = { klin: 'Кл', duga: 'Ду', kryuk: 'Кр', scara: 'Жу', needle: 'Иг', hammer: 'Мл' };
+  const DIR = { N: 'север', E: 'восток', S: 'юг', W: 'запад' };
+  const ROT = { N: 0, E: 90, S: 180, W: 270 };
+  const BLURB = {
+    strike: '1 урон рядом и толчок',
+    shell: 'дуга 2–4, крест наружу',
+    pull: 'притянуть по прямой',
+  };
+  const STORE = 'kromka-pilot-v2';
+
+  function svgUnit(kind) {
+    const ink = kind === 'klin' || kind === 'duga' || kind === 'kryuk';
+    if (kind === 'klin') {
+      return '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="56" rx="12" ry="3" fill="rgba(0,0,0,.35)"/><path d="M32 6 L46 26 H38 V46 H26 V26 H18 Z" fill="#f4efe6" stroke="#e2a15a" stroke-width="2"/><path d="M32 12 L37 24 H27 Z" fill="#e2a15a"/><rect x="24" y="46" width="6" height="8" rx="1" fill="#8a4e2b"/><rect x="34" y="46" width="6" height="8" rx="1" fill="#8a4e2b"/></svg>';
+    }
+    if (kind === 'duga') {
+      return '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="56" rx="16" ry="3" fill="rgba(0,0,0,.35)"/><path d="M14 40 H50 V50 H14 Z" fill="#d9c3a4" stroke="#e2a15a" stroke-width="2"/><path d="M16 40 Q32 8 48 40" fill="none" stroke="#e2a15a" stroke-width="4"/><rect x="29" y="16" width="6" height="22" rx="2" fill="#f4efe6" stroke="#8a4e2b"/><circle cx="32" cy="16" r="4" fill="#ffb15a"/></svg>';
+    }
+    if (kind === 'kryuk') {
+      return '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="56" rx="12" ry="3" fill="rgba(0,0,0,.35)"/><rect x="27" y="22" width="10" height="28" rx="2" fill="#f4efe6" stroke="#e2a15a" stroke-width="2"/><path d="M32 22 V10 H44 V18" fill="none" stroke="#e2a15a" stroke-width="4" stroke-linecap="round"/><path d="M44 18 q6 0 6 6" fill="none" stroke="#e2a15a" stroke-width="4" stroke-linecap="round"/><rect x="22" y="46" width="20" height="6" rx="2" fill="#8a4e2b"/></svg>';
+    }
+    if (kind === 'scara') {
+      return '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="54" rx="14" ry="3" fill="rgba(0,0,0,.35)"/><ellipse cx="32" cy="34" rx="16" ry="12" fill="#e23d55" stroke="#6e1020" stroke-width="2"/><path d="M32 22 L36 10 L28 10 Z" fill="#ffd0d4"/><path d="M18 34 H10 M46 34 H54 M20 42 L12 48 M44 42 L52 48" stroke="#6e1020" stroke-width="2"/></svg>';
+    }
+    if (kind === 'needle') {
+      return '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="54" rx="8" ry="3" fill="rgba(0,0,0,.35)"/><path d="M32 6 L42 36 L32 52 L22 36 Z" fill="#c97bff" stroke="#4c1868" stroke-width="2"/><path d="M32 6 L36 20 H28 Z" fill="#f6e9ff"/></svg>';
+    }
+    return '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="56" rx="16" ry="3" fill="rgba(0,0,0,.35)"/><rect x="20" y="28" width="24" height="22" rx="3" fill="#c4553a" stroke="#4a160e" stroke-width="2"/><rect x="26" y="8" width="12" height="18" rx="2" fill="#e7b2a4" stroke="#4a160e"/><rect x="16" y="12" width="14" height="10" rx="2" fill="#ffb15a" stroke="#4a160e"/></svg>';
+  }
+
+  function narrate(events) {
+    const lines = [];
+    let grid = 0;
+    for (const e of events) {
+      if (e.t === 'damage' && e.target === 'unit' && !e.lethal) {
+        lines.push(NAME[e.kind] + ' получит ' + e.amount + ' урона');
+      } else if (e.t === 'damage' && e.target === 'tile' && e.terrain === 'building') {
+        lines.push((e.objective ? 'Большое здание' : 'Здание') + ' получит ' + e.amount + ' урона');
+      } else if (e.t === 'damage' && e.target === 'tile' && e.terrain === 'mountain') {
+        lines.push('Гора получит ' + e.amount + ' урона');
+      } else if (e.t === 'death') {
+        lines.push(e.cause === 'water'
+          ? NAME[e.kind] + ' падает в яму'
+          : NAME[e.kind] + ' будет уничтожен');
+      } else if (e.t === 'move' && e.side === 'player') {
+        lines.push(NAME[e.kind] + ' встанет на новую клетку');
+      } else if (e.t === 'push') {
+        lines.push('Толчок на ' + DIR[e.dir]);
+      } else if (e.t === 'bump') {
+        lines.push('Столкновение: по 1 урона');
+      } else if (e.t === 'spawn-block') {
+        lines.push('Выход сорван, стоящий получает 1');
+      } else if (e.t === 'grid') grid += e.delta;
+    }
+    if (grid) lines.push('Энергия ' + grid);
+    const uniq = [];
+    for (const line of lines) if (!uniq.includes(line)) uniq.push(line);
+    return uniq;
+  }
+
+  function loadStore() {
+    try {
+      const raw = localStorage.getItem(STORE);
+      if (!raw) return { cleared: {}, sound: true, tutorialDone: false, resume: null };
+      const data = JSON.parse(raw);
+      data.cleared = data.cleared || {};
+      return data;
+    } catch (err) {
+      return { cleared: {}, sound: true, tutorialDone: false, resume: null };
+    }
+  }
+
+  function saveStore(data) {
+    try { localStorage.setItem(STORE, JSON.stringify(data)); } catch (err) { /* частный режим */ }
+  }
+
+  function Game(app) {
+    this.app = app;
+    this.logic = globalThis.KromkaLogic;
+    this.battles = globalThis.KromkaBattles;
+    this.tutorial = globalThis.KromkaTutorial;
+    this.units = globalThis.KromkaUnits;
+    this.tut = null;
+    this.cardId = null;
+    this.store = loadStore();
+    this.soundOn = this.store.sound !== false;
+    this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    this.audio = null;
+    this.pace = 1;
+    this.screen = 'title';
+    this.session = null;
+    this.battle = null;
+    this.selectedId = null;
+    this.mode = 'move';
+    this.armed = null;
+    this.hover = null;
+    this.cursor = { x: 0, y: 0 };
+    this.cursorOn = false;
+    this.busy = false;
+    this.introSeen = false;
+    this.lastLines = [];
+    this.helpOpen = false;
+    this.tile = 64;
+    this.gap = 4;
+    window.addEventListener('keydown', (e) => this.onKey(e));
+    window.addEventListener('pointerdown', () => this.ensureAudio(), { once: true });
+    window.addEventListener('resize', () => { if (this.screen === 'battle') this.layout(); });
+  }
+
+  Game.prototype.ensureAudio = function () {
+    if (this.audio || !this.soundOn) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    this.audio = new AC();
+  };
+
+  Game.prototype.blip = function (kind) {
+    if (!this.soundOn || !this.audio || this.reduced) return;
+    const ctx = this.audio;
+    if (ctx.state === 'suspended') ctx.resume();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g);
+    g.connect(ctx.destination);
+    const now = ctx.currentTime;
+    o.type = kind === 'hit' ? 'square' : kind === 'die' ? 'sawtooth' : 'triangle';
+    const f = kind === 'shot' ? 180 : kind === 'hit' ? 120 : kind === 'die' ? 90 : 240;
+    o.frequency.setValueAtTime(f, now);
+    if (kind === 'shot' || kind === 'die') o.frequency.exponentialRampToValueAtTime(48, now + 0.22);
+    g.gain.setValueAtTime(0.035, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+    o.start(now);
+    o.stop(now + 0.25);
+  };
+
+  Game.prototype.persist = function () {
+    this.store.sound = this.soundOn;
+    if (this.session && this.session.state.status === 'playing') {
+      this.store.resume = {
+        battleId: this.battle.id,
+        state: this.session.state,
+        past: this.session.past,
+        turnStart: this.session.turnStart,
+        introSeen: this.introSeen,
+      };
+    }
+    saveStore(this.store);
+  };
+
+  Game.prototype.mountScreen = function (html) {
+    this.app.innerHTML = html;
+  };
+
+  Game.prototype.showTitle = function () {
+    this.screen = 'title';
+    this.session = null;
+    const resume = this.store.resume && this.store.resume.state && this.store.resume.state.status === 'playing';
+    this.mountScreen(
+      '<div class="screen"><div class="hero">' +
+      '<div><p class="brand">КР<span>ОМ</span>КА</p>' +
+      '<p class="tagline">Три меха берегут энергию зданий пять ходов.</p>' +
+      '<p class="lede">Красные клетки — куда враги ударят. Синие — куда можно пойти. Жёлтые — ваш удар.</p>' +
+      '<div class="hero-actions">' +
+      '<button class="primary" data-go="select">К боям</button>' +
+      (resume ? '<button data-go="resume">Продолжить</button>' : '') +
+      '<button class="ghost" data-go="help">Правила</button>' +
+      '</div><p class="fineprint">Пилот на один вечер. Прогресс хранится только на этом устройстве.</p></div>' +
+      '<div class="hero-art" aria-hidden="true">' + heroArt() + '</div></div></div>'
+    );
+    this.app.querySelector('[data-go="select"]').onclick = () => this.showSelect();
+    const resumeBtn = this.app.querySelector('[data-go="resume"]');
+    if (resumeBtn) resumeBtn.onclick = () => this.resume();
+    this.app.querySelector('[data-go="help"]').onclick = () => this.openHelp();
+  };
+
+  Game.prototype.showSelect = function () {
+    this.screen = 'select';
+    const cards = this.battles.BATTLES.map((battle) => {
+      const best = this.store.cleared[battle.id];
+      const ratingClass = battle.rating === 'тяжёлый' ? 'hard' : battle.rating === 'средний' ? 'mid' : '';
+      return '<button class="card" data-id="' + battle.id + '">' +
+        '<span class="rating ' + ratingClass + '">' + battle.rating + '</span>' +
+        '<h2>' + battle.name + '</h2>' +
+        '<p class="blurb">' + battle.blurb + '</p>' +
+        mini(battle) +
+        '<p class="record">' + (best ? 'Рекорд ' + best.score + ' · энергия ' + best.grid + '/' + best.gridMax : 'Ещё не пройден') + '</p>' +
+        '</button>';
+    }).join('');
+    this.mountScreen(
+      '<div class="screen"><div class="top"><h1>Бои</h1><button class="linkish" data-back>На обложку</button></div>' +
+      '<div class="cards">' + cards + '</div></div>'
+    );
+    this.app.querySelector('[data-back]').onclick = () => this.showTitle();
+    this.app.querySelectorAll('.card').forEach((btn) => {
+      btn.onclick = () => this.startBattle(btn.dataset.id);
+    });
+  };
+
+  Game.prototype.resume = function () {
+    const saved = this.store.resume;
+    if (!saved) return this.showSelect();
+    const battle = this.battles.battleById(saved.battleId);
+    if (!battle) return this.showSelect();
+    this.battle = battle;
+    this.session = {
+      state: saved.state,
+      past: saved.past || [],
+      turnStart: saved.turnStart || this.logic.cloneState(saved.state),
+    };
+    this.introSeen = !!saved.introSeen;
+    this.selectedId = null;
+    this.openBattle();
+  };
+
+  Game.prototype.startBattle = function (id) {
+    const battle = this.battles.battleById(id);
+    this.battle = battle;
+    this.session = this.logic.createSession(battle);
+    this.introSeen = false;
+    this.tut = (battle.tutorial && !this.store.tutorialDone) ? this.tutorial.createRun() : null;
+    this.selectedId = null;
+    this.lastLines = [];
+    this.store.resume = null;
+    this.openBattle();
+  };
+
+  Game.prototype.openBattle = function () {
+    this.screen = 'battle';
+    this.mode = 'move';
+    this.armed = null;
+    this.hover = null;
+    this.cursor = { x: 4, y: 4 };
+    this.cursorOn = false;
+    this.mountScreen(
+      '<div class="battle">' +
+      '<header class="battle-top">' +
+      '<div class="name"></div>' +
+      '<div class="gridbar"><b>Энергия</b><div class="pips" id="pips"></div><span id="gridnum"></span></div>' +
+      '<div class="turn-pill" id="turn"></div>' +
+      '<button class="sound" type="button"></button>' +
+      '<button class="ghost" type="button" data-help>Правила</button>' +
+      '<button class="linkish" type="button" data-back>К боям</button>' +
+      '<div class="nowbar" id="nowbar"><p id="now"></p><button type="button" id="next-hint" hidden>Дальше</button><button type="button" class="ghost" id="skip-tut" hidden>Пропустить</button></div>' +
+      '<div class="legend" aria-label="Цвета клеток"><span><i class="swatch red"></i>удар врага</span><span><i class="swatch blue"></i>ход</span><span><i class="swatch gold"></i>урон</span><span><i class="swatch push"></i>толчок</span><span><i class="swatch pull"></i>тяга</span></div>' +
+      '</header>' +
+      '<section class="stage"><div class="frame"><div class="board"><div class="tiles"></div><div class="pieces"></div><svg class="fx"></svg></div></div></section>' +
+      '<aside class="dock">' +
+      '<aside class="unitcard" hidden></aside>' +
+      '<div class="mechs"></div>' +
+      '<div class="modes" hidden>' +
+      '<button type="button" data-mode="move">Идти</button>' +
+      '<button type="button" data-mode="weapon">Удар</button>' +
+      '<button type="button" data-mode="wait">Ждать</button>' +
+      '</div>' +
+      '<div class="hint" hidden></div>' +
+      '<div class="forecast"></div>' +
+      '<div class="last" hidden></div>' +
+      '<button class="primary" type="button" id="confirm" hidden>Подтвердить</button>' +
+      '<div class="actions">' +
+      '<button type="button" data-undo>Отмена</button>' +
+      '<button type="button" data-reset>Сброс хода</button>' +
+      '<button class="primary endturn" type="button" data-end>Конец хода</button>' +
+      '</div>' +
+      '<div class="threats" id="threats"></div>' +
+      '<p class="keys">1–3 — мехи, стрелки и Enter, E — конец хода, R — сброс, Backspace — отмена. Срабатывает и на русской раскладке.</p>' +
+      '<div id="tut-arrow" hidden>▼</div>' +
+      '</aside></div>' +
+      '<div class="end" hidden><div class="end-card"></div></div>'
+    );
+    this.board = this.app.querySelector('.board');
+    this.tilesEl = this.app.querySelector('.tiles');
+    this.piecesEl = this.app.querySelector('.pieces');
+    this.fx = this.app.querySelector('.fx');
+    this.tilesEl.addEventListener('click', (e) => {
+      const tile = e.target.closest('.tile');
+      if (!tile) return;
+      this.onTile(+tile.dataset.x, +tile.dataset.y);
+    });
+    this.tilesEl.addEventListener('pointermove', (e) => {
+      if (!this.fine) return;
+      const tile = e.target.closest('.tile');
+      if (!tile) return;
+      this.onHover(+tile.dataset.x, +tile.dataset.y);
+    });
+    this.tilesEl.addEventListener('pointerleave', () => {
+      if (!this.fine) return;
+      this.hover = null;
+      this.paintOverlay();
+      this.paintForecast();
+    });
+    this.app.querySelector('[data-back]').onclick = () => { this.persist(); this.showSelect(); };
+    this.app.querySelector('[data-help]').onclick = () => this.openHelp();
+    this.app.querySelector('.sound').onclick = () => {
+      this.soundOn = !this.soundOn;
+      this.persist();
+      this.paintChrome();
+      if (this.soundOn) { this.ensureAudio(); this.blip('move'); }
+    };
+    this.app.querySelector('[data-undo]').onclick = () => this.doUndo();
+    this.app.querySelector('[data-reset]').onclick = () => this.doReset();
+    this.app.querySelector('[data-end]').onclick = () => this.doEnd();
+    this.app.querySelector('#next-hint').onclick = () => this.tutNext();
+    this.app.querySelector('#skip-tut').onclick = () => this.tutSkip();
+    this.app.querySelector('#confirm').onclick = () => {
+      const step = this.tutStep();
+      if (step && step.allow.type !== 'confirm') return this.deny();
+      if (!this.armed) return this.deny();
+      this.commit(this.armed.intent, this.armed.x, this.armed.y);
+    };
+    this.app.querySelectorAll('[data-mode]').forEach((btn) => {
+      btn.onclick = () => {
+        if (this.tutStep()) return this.deny();
+        if (btn.dataset.mode === 'wait') this.doWait();
+        else { this.mode = btn.dataset.mode; this.armed = null; this.paintModes(); this.paintOverlay(); }
+      };
+    });
+    this.layout();
+    this.draw();
+  };
+
+  Game.prototype.layout = function () {
+    if (!this.board) return;
+    const stage = this.app.querySelector('.stage');
+    const width = stage.clientWidth - 8;
+    const gap = width < 560 ? 2 : 4;
+    const tile = Math.max(36, Math.min(68, Math.floor((width - gap * 7 - 20) / 8)));
+    this.tile = tile;
+    this.gap = gap;
+    this.board.style.setProperty('--tile', tile + 'px');
+    this.board.style.setProperty('--gap', gap + 'px');
+    const size = tile * 8 + gap * 7;
+    this.fx.setAttribute('width', size);
+    this.fx.setAttribute('height', size);
+    this.fx.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
+    this.placePieces();
+  };
+
+  Game.prototype.draw = function () {
+    if (this.screen !== 'battle' || !this.session) return;
+    this.paintChrome();
+    this.paintMechs();
+    this.paintTiles();
+    this.paintPieces();
+    this.paintModes();
+    this.paintOverlay();
+    this.paintForecast();
+    this.paintHint();
+    this.paintCard();
+    this.paintThreats();
+    this.paintEnd();
+  };
+
+  Game.prototype.paintChrome = function () {
+    const state = this.session.state;
+    this.app.querySelector('.name').textContent = this.battle.name;
+    const turnShown = Math.min(state.turn, state.maxTurn);
+    this.app.querySelector('#turn').textContent = 'Ход ' + turnShown + ' из ' + state.maxTurn;
+    this.app.querySelector('#gridnum').textContent = Math.max(0, state.gridHp) + '/' + state.gridMax;
+    const pips = this.app.querySelector('#pips');
+    pips.innerHTML = '';
+    for (let i = 0; i < state.gridMax; i++) {
+      const pip = document.createElement('i');
+      if (i < state.gridHp) pip.className = 'on';
+      pips.appendChild(pip);
+    }
+    const sound = this.app.querySelector('.sound');
+    sound.textContent = this.soundOn ? 'Звук вкл' : 'Звук выкл';
+    sound.setAttribute('aria-pressed', this.soundOn ? 'true' : 'false');
+    const canUndo = this.session.past.length > 0 && state.status === 'playing' && !this.busy;
+    this.app.querySelector('[data-undo]').disabled = !canUndo;
+    this.app.querySelector('[data-reset]').disabled = !canUndo;
+    const end = this.app.querySelector('[data-end]');
+    end.disabled = this.busy || state.status !== 'playing';
+    const idle = state.units.filter((u) => u.side === 'player' && u.hp > 0 && !u.acted);
+    end.classList.toggle('ready', idle.length === 0 && state.status === 'playing');
+  };
+
+  Game.prototype.paintTiles = function () {
+    const state = this.session.state;
+    if (this.tilesEl.childElementCount !== 64) {
+      this.tilesEl.innerHTML = '';
+      this.tileNodes = [];
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'tile';
+          btn.dataset.x = String(x);
+          btn.dataset.y = String(y);
+          const deco = document.createElement('div');
+          deco.className = 'deco';
+          btn.appendChild(deco);
+          this.tilesEl.appendChild(btn);
+          this.tileNodes.push(btn);
+        }
+      }
+    }
+    state.tiles.forEach((tile, i) => {
+      const el = this.tileNodes[i];
+      const classes = ['tile'];
+      if ((tile.x + tile.y) % 2 === 0 && tile.terrain === 'ground' && !tile.rubble) classes.push('alt');
+      if (tile.terrain === 'water') classes.push('water');
+      else if (tile.terrain === 'mountain') classes.push('mountain');
+      else if (tile.terrain === 'building') classes.push('building', tile.objective ? 'objective' : 'shop');
+      if (tile.rubble) classes.push('rubble-' + tile.rubble);
+      if (tile.spawn) classes.push('spawn');
+      el.className = classes.join(' ');
+      el.setAttribute('aria-label', labelTile(tile));
+      el.querySelector('.deco').innerHTML = decoOf(tile);
+      if (!el.querySelector('.ord-tile')) {
+        const badge = document.createElement('span');
+        badge.className = 'ord-tile';
+        badge.hidden = true;
+        el.appendChild(badge);
+      }
+    });
+  };
+
+  Game.prototype.paintPieces = function () {
+    const state = this.session.state;
+    const have = new Set();
+    for (const unit of state.units) {
+      have.add(unit.id);
+      const passport = this.units.profile(unit.kind);
+      let el = this.piecesEl.querySelector('[data-id="' + unit.id + '"]');
+      if (!el) {
+        el = document.createElement('div');
+        el.dataset.id = unit.id;
+        el.innerHTML = '<div class="rot"></div><span class="atk-icon"></span><span class="tag"></span><span class="badge" hidden></span><span class="hp"></span>';
+        this.piecesEl.appendChild(el);
+      }
+      el.className = 'piece ' + (unit.side === 'player' ? 'player' : 'enemy') + (unit.id === this.selectedId ? ' selected' : '');
+      el.style.setProperty('--accent', passport.accent);
+      el.querySelector('.atk-icon').innerHTML = attackIcon(passport.icon);
+      el.querySelector('.rot').innerHTML = svgUnit(unit.kind);
+      el.querySelector('.rot').style.transform = 'rotate(' + (ROT[unit.dir] || 0) + 'deg)';
+      el.querySelector('.tag').textContent = TAG[unit.kind];
+      const badge = el.querySelector('.badge');
+      if (unit.attacking && unit.order) {
+        badge.hidden = false;
+        badge.textContent = String(unit.order);
+      } else badge.hidden = true;
+      const hp = el.querySelector('.hp');
+      hp.innerHTML = '';
+      for (let i = 0; i < unit.maxHp; i++) {
+        const pip = document.createElement('i');
+        if (i < unit.hp) pip.className = 'on';
+        hp.appendChild(pip);
+      }
+    }
+    this.piecesEl.querySelectorAll('.piece').forEach((el) => {
+      if (!have.has(el.dataset.id)) el.remove();
+    });
+    this.placePieces();
+  };
+
+  Game.prototype.placePieces = function () {
+    if (!this.piecesEl || !this.session) return;
+    const step = this.tile + this.gap;
+    for (const unit of this.session.state.units) {
+      const el = this.piecesEl.querySelector('[data-id="' + unit.id + '"]');
+      if (!el) continue;
+      el.style.transform = 'translate(' + (unit.x * step) + 'px,' + (unit.y * step) + 'px)';
+    }
+  };
+
+  Game.prototype.selected = function () {
+    if (!this.selectedId) return null;
+    return this.logic.unitById(this.session.state, this.selectedId);
+  };
+
+  Game.prototype.paintMechs = function () {
+    const box = this.app.querySelector('.mechs');
+    if (!box) return;
+    const order = ['klin', 'duga', 'kryuk'];
+    box.innerHTML = order.map((id) => {
+      const unit = this.logic.unitById(this.session.state, id);
+      if (!unit) return '';
+      const passport = this.units.profile(id);
+      const status = unit.hp <= 0 ? 'пал' : unit.acted ? 'ударил' : unit.moved ? 'уже шёл' : 'готов';
+      return '<button type="button" class="mech' + (id === this.selectedId ? ' on' : '') + '" data-pick="' + id + '" style="--accent:' + passport.accent + '">' +
+        '<div class="mini-svg">' + svgUnit(unit.kind) + '<span class="atk-icon">' + attackIcon(passport.icon) + '</span></div>' +
+        '<div><div class="who">' + passport.name + ' ' + unit.hp + '/' + unit.maxHp + '</div>' +
+        '<div class="sub">' + status + ' · ' + passport.role + '</div></div></button>';
+    }).join('');
+    box.querySelectorAll('[data-pick]').forEach((btn) => {
+      btn.onclick = () => {
+        this.showCard(btn.dataset.pick);
+        this.select(btn.dataset.pick);
+      };
+    });
+  };
+
+  Game.prototype.paintModes = function () {
+    const box = this.app.querySelector('.modes');
+    const mech = this.selected();
+    const show = mech && mech.hp > 0 && !mech.acted && this.session.state.status === 'playing' && !this.tutStep();
+    box.hidden = !show;
+    box.querySelectorAll('button').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.mode === this.mode);
+      if (btn.dataset.mode === 'move') btn.disabled = !!(mech && mech.moved);
+    });
+  };
+
+  Game.prototype.intentAt = function (x, y) {
+    const mech = this.selected();
+    if (!mech || mech.acted || mech.hp <= 0) return null;
+    const state = this.session.state;
+    const reach = this.logic.reachable(state, mech.id);
+    const targets = this.logic.weaponTargets(state, mech.id);
+    const canMove = reach.some((t) => t.x === x && t.y === y && (t.x !== mech.x || t.y !== mech.y));
+    const canAct = targets.some((t) => t.x === x && t.y === y);
+    if (this.mode === 'move' && canMove) return 'move';
+    if (this.mode === 'weapon' && canAct) return 'act';
+    if (this.mode === 'move' && canAct && !canMove) return 'act';
+    return null;
+  };
+
+  Game.prototype.paintOverlay = function () {
+    const state = this.session.state;
+    const focus = this.armed || this.hover;
+    for (const el of this.tileNodes || []) {
+      el.classList.remove('move', 'weapon', 'tele', 'impact', 'cursor', 'coach');
+    }
+    const mark = (x, y, cls) => {
+      const el = this.tileNodes[y * 8 + x];
+      if (el) el.classList.add(cls);
+    };
+    if (this.cursorOn && this.cursor) mark(this.cursor.x, this.cursor.y, 'cursor');
+    for (const el of this.tileNodes || []) {
+      const badge = el.querySelector('.ord-tile');
+      if (badge) { badge.hidden = true; badge.textContent = ''; }
+    }
+    const mech = this.selected();
+    if (mech && !mech.acted && state.status === 'playing') {
+      if (!mech.moved && this.mode === 'move') {
+        for (const cell of this.logic.reachable(state, mech.id)) {
+          if (cell.x !== mech.x || cell.y !== mech.y) mark(cell.x, cell.y, 'move');
+        }
+      }
+      if (this.mode === 'weapon') {
+        for (const cell of this.logic.weaponTargets(state, mech.id)) mark(cell.x, cell.y, 'weapon');
+      }
+    }
+    const previewState = focus ? this.previewCommand(focus) : null;
+    const show = previewState ? previewState.state : state;
+    for (const unit of show.units) {
+      if (unit.side !== 'enemy' || !unit.attacking) continue;
+      const info = this.logic.telegraph(show, unit);
+      if (!info) continue;
+      for (const cell of info.tiles) mark(cell.x, cell.y, 'tele');
+      if (info.impact) mark(info.impact.x, info.impact.y, 'impact');
+    }
+    this.drawArrows(show, previewState);
+  };
+
+  Game.prototype.previewCommand = function (focus) {
+    if (!focus) return null;
+    const cmd = focus.intent === 'move'
+      ? { type: 'move', unitId: this.selectedId, x: focus.x, y: focus.y }
+      : { type: 'act', unitId: this.selectedId, x: focus.x, y: focus.y };
+    const result = this.logic.apply(this.session.state, cmd);
+    if (!result.ok) return null;
+    return result;
+  };
+
+  Game.prototype.attackShape = function (pt, step) {
+    const mech = this.selected();
+    if (!mech || mech.hp <= 0 || mech.acted) return '';
+    const dirs = [
+      { x: 0, y: -1 },
+      { x: 1, y: 0 },
+      { x: 0, y: 1 },
+      { x: -1, y: 0 },
+    ];
+    if (mech.kind === 'duga') {
+      const square = (dist) => {
+        const x = (mech.x - dist) * step;
+        const y = (mech.y - dist) * step;
+        const size = dist * 2 * step + this.tile;
+        return '<rect x="' + x + '" y="' + y + '" width="' + size + '" height="' + size + '" fill="none" stroke="#ffc14d" stroke-width="2" stroke-dasharray="6 4"/>';
+      };
+      return square(4) + square(1);
+    }
+    let out = '';
+    for (const dir of dirs) {
+      if (mech.kind === 'klin') {
+        const nx = mech.x + dir.x;
+        const ny = mech.y + dir.y;
+        if (!this.logic.inb(this.session.state, nx, ny)) continue;
+        const from = pt(mech.x, mech.y);
+        const to = pt(nx, ny);
+        const x1 = from.x + (to.x - from.x) * 0.42;
+        const y1 = from.y + (to.y - from.y) * 0.42;
+        const x2 = from.x + (to.x - from.x) * 0.92;
+        const y2 = from.y + (to.y - from.y) * 0.92;
+        out += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#ffc14d" stroke-width="3" marker-end="url(#ap)"/>';
+        out += '<circle cx="' + to.x + '" cy="' + to.y + '" r="5" fill="#ffc14d" opacity="0.9"/>';
+      }
+      if (mech.kind === 'kryuk') {
+        let fx = mech.x;
+        let fy = mech.y;
+        for (let i = 1; i <= 4; i++) {
+          const nx = mech.x + dir.x * i;
+          const ny = mech.y + dir.y * i;
+          if (!this.logic.inb(this.session.state, nx, ny)) break;
+          fx = nx;
+          fy = ny;
+        }
+        if (fx === mech.x && fy === mech.y) continue;
+        const far = pt(fx, fy);
+        const near = pt(mech.x, mech.y);
+        out += '<line x1="' + far.x + '" y1="' + far.y + '" x2="' + near.x + '" y2="' + near.y + '" stroke="#3ec8c0" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#aq)"/>';
+      }
+    }
+    return out;
+  };
+
+  Game.prototype.drawArrows = function (show, preview) {
+    const size = this.tile * 8 + this.gap * 7;
+    const mid = this.tile / 2;
+    const step = this.tile + this.gap;
+    const pt = (x, y) => ({ x: x * step + mid, y: y * step + mid });
+    let svg = '<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#ff5d6e"/></marker>' +
+      '<marker id="ap" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#ffc14d"/></marker>' +
+      '<marker id="aq" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#3ec8c0"/></marker></defs>';
+    svg += this.attackShape(pt, step);
+    for (const unit of show.units) {
+      if (unit.side !== 'enemy' || !unit.attacking) continue;
+      const info = this.logic.telegraph(show, unit);
+      if (!info) continue;
+      const from = pt(unit.x, unit.y);
+      const dest = info.impact || info.tiles[info.tiles.length - 1];
+      if (!dest) continue;
+      const to = pt(dest.x, dest.y);
+      svg += '<line class="arrow" x1="' + from.x + '" y1="' + from.y + '" x2="' + to.x + '" y2="' + to.y + '" marker-end="url(#ah)"/>';
+      if (info.impact) {
+        const p = pt(info.impact.x, info.impact.y);
+        svg += '<circle cx="' + p.x + '" cy="' + p.y + '" r="12" fill="#fff" stroke="#e23d3d" stroke-width="2"/>';
+        svg += '<text x="' + p.x + '" y="' + (p.y + 5) + '" text-anchor="middle" fill="#8d140c" font-size="14" font-weight="700" font-family="sans-serif">' + unit.order + '</text>';
+      }
+    }
+    if (preview) {
+      for (const e of preview.events) {
+        if (e.t !== 'push') continue;
+        const a = pt(e.from.x, e.from.y);
+        const b = pt(e.to.x, e.to.y);
+        svg += '<line class="arrow push" x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" marker-end="url(#ap)"/>';
+      }
+      for (const e of preview.events) {
+        if (e.t === 'death') {
+          const p = pt(e.x, e.y);
+          svg += '<text class="mark" x="' + p.x + '" y="' + p.y + '" text-anchor="middle" fill="#fff" font-size="18" font-family="sans-serif">✕</text>';
+        } else if (e.t === 'damage') {
+          const p = pt(e.x, e.y);
+          svg += '<text class="mark" x="' + p.x + '" y="' + (p.y - 10) + '" text-anchor="middle" fill="#ffe1dc" font-size="14" font-weight="700" font-family="sans-serif">−' + e.amount + '</text>';
+        }
+      }
+    }
+    this.fx.setAttribute('width', size);
+    this.fx.setAttribute('height', size);
+    this.fx.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
+    this.fx.innerHTML = svg;
+  };
+
+  Game.prototype.paintForecast = function () {
+    const box = this.app.querySelector('.forecast');
+    const focus = this.armed || this.hover;
+    const preview = focus ? this.previewCommand(focus) : null;
+    if (preview) {
+      const lines = narrate(preview.events);
+      const future = this.logic.previewResolution(preview.state);
+      const lost = this.session.state.gridHp - future.state.gridHp;
+      const tail = lost > 0 ? 'После этого энергия зданий −' + lost : 'После этого энергия зданий цела';
+      box.className = 'forecast' + (lost > 0 ? ' bad' : '');
+      box.innerHTML = '<strong>Если подтвердить</strong>' + list(lines.length ? lines : ['Без урона']) + '<p><strong>' + tail + '</strong></p>';
+      return;
+    }
+    const future = this.logic.previewResolution(this.session.state);
+    const lost = this.session.state.gridHp - future.state.gridHp;
+    box.className = 'forecast' + (lost > 0 ? ' bad' : '');
+    const lines = narrate(future.events);
+    const head = lost > 0 ? 'Если нажать «Конец хода», энергия −' + lost : 'Если нажать «Конец хода», энергия цела';
+    box.innerHTML = '<strong>' + head + '</strong>' + list(lines);
+  };
+
+  Game.prototype.tutStep = function () {
+    return this.tutorial ? this.tutorial.current(this.tut) : null;
+  };
+
+  Game.prototype.tutNext = function () {
+    const step = this.tutStep();
+    if (!step || !this.tutorial.advance(this.tut, { type: 'next' }).ok) return this.deny();
+    if (this.tut.done) {
+      this.store.tutorialDone = true;
+      this.persist();
+    }
+    this.draw();
+  };
+
+  Game.prototype.tutSkip = function () {
+    if (!this.tut) return;
+    this.tutorial.skip(this.tut);
+    this.store.tutorialDone = true;
+    this.persist();
+    this.draw();
+  };
+
+  Game.prototype.deny = function () {
+    const bar = this.app.querySelector('#nowbar');
+    if (!bar) return;
+    bar.classList.remove('nope');
+    void bar.offsetWidth;
+    bar.classList.add('nope');
+  };
+
+  Game.prototype.freeHint = function () {
+    const state = this.session.state;
+    if (state.status !== 'playing') return 'Бой окончен.';
+    const mechs = state.units.filter((u) => u.side === 'player' && u.hp > 0);
+    const waiting = mechs.filter((u) => !u.acted);
+    if (!waiting.length) return 'Все мехи походили. Нажмите «Конец хода».';
+    if (!this.selectedId) return 'Что делать сейчас: выберите меха.';
+    const mech = this.selected();
+    if (!mech || mech.acted) return 'Этот мех уже походил. Выберите другого или нажмите «Конец хода».';
+    if (!mech.moved) return 'Что делать сейчас: синяя клетка — пойти, жёлтая — ударить.';
+    return 'Что делать сейчас: нажмите жёлтую клетку, затем «Ударить».';
+  };
+
+  Game.prototype.paintHint = function () {
+    const step = this.tutStep();
+    const now = this.app.querySelector('#now');
+    const next = this.app.querySelector('#next-hint');
+    const skip = this.app.querySelector('#skip-tut');
+    const dockHint = this.app.querySelector('.hint');
+    if (dockHint) dockHint.hidden = true;
+    document.body.classList.toggle('teaching', !!step);
+    if (!now) return;
+    if (step && step.id.indexOf('meet-') === 0 && step.hot && step.hot.id) this.cardId = step.hot.id;
+    now.textContent = step ? step.text : this.freeHint();
+    if (next) next.hidden = !(step && step.allow.type === 'next');
+    if (skip) skip.hidden = !step;
+    const confirm = this.app.querySelector('#confirm');
+    if (confirm && step && step.allow.type === 'confirm') {
+      confirm.hidden = false;
+      confirm.textContent = 'Ударить';
+    }
+    this.paintSpotlight(step);
+  };
+
+  Game.prototype.paintSpotlight = function (step) {
+    this.app.querySelectorAll('.tut-hot').forEach((el) => el.classList.remove('tut-hot'));
+    const arrow = this.app.querySelector('#tut-arrow');
+    if (!step) {
+      if (arrow) arrow.hidden = true;
+      return;
+    }
+    const hot = step.hot || {};
+    let aim = null;
+    const mark = (el, primary) => {
+      if (!el) return;
+      el.classList.add('tut-hot');
+      if (primary || !aim) aim = el;
+    };
+    if (hot.kind === 'energy') mark(this.app.querySelector('.gridbar'), true);
+    if (hot.kind === 'unit') {
+      mark(this.piecesEl.querySelector('[data-id="' + hot.id + '"]'), true);
+      mark(this.app.querySelector('[data-pick="' + hot.id + '"]'), false);
+    }
+    if (hot.kind === 'tile' && this.tileNodes) mark(this.tileNodes[hot.y * 8 + hot.x], true);
+    if (hot.kind === 'impacts') {
+      this.app.querySelectorAll('.tile.impact').forEach((el, i) => mark(el, i === 0));
+    }
+    if (hot.kind === 'confirm') mark(this.app.querySelector('#confirm'), true);
+    if (hot.kind === 'end') mark(this.app.querySelector('[data-end]'), true);
+    if (hot.kind === 'next' || step.allow.type === 'next') mark(this.app.querySelector('#next-hint'), hot.kind === 'next');
+    if (!arrow || !aim) {
+      if (arrow) arrow.hidden = true;
+      return;
+    }
+    const rect = aim.getBoundingClientRect();
+    arrow.hidden = false;
+    arrow.style.left = (rect.left + rect.width / 2 - 12) + 'px';
+    arrow.style.top = Math.max(4, rect.top - 30) + 'px';
+  };
+
+  Game.prototype.noteCommand = function (cmd) {
+    const step = this.tutStep();
+    if (!step) return;
+    let action = null;
+    if (cmd.type === 'move') action = { type: 'move', unitId: cmd.unitId, x: cmd.x, y: cmd.y };
+    else if (cmd.type === 'act' && step.allow.type === 'confirm') action = { type: 'confirm' };
+    else if (cmd.type === 'end') action = { type: 'end' };
+    if (action) this.tutorial.advance(this.tut, action);
+  };
+
+  Game.prototype.paintThreats = function () {
+    const box = this.app.querySelector('#threats');
+    const units = this.session.state.units
+      .filter((u) => u.side === 'enemy' && u.attacking)
+      .slice()
+      .sort((a, b) => a.order - b.order);
+    if (!units.length) { box.innerHTML = ''; return; }
+    box.innerHTML = units.map((u) => {
+      const info = this.logic.telegraph(this.session.state, u);
+      let what = 'мимо';
+      if (info && info.impact) {
+        what = info.impact.what === 'building' ? 'по зданию' : info.impact.what === 'mountain' ? 'по горе' : 'по фигуре';
+      }
+      return '<div><span class="ord">' + u.order + '</span><span>' + NAME[u.kind] + ' · ' + DIR[u.dir] + ' · ' + what + '</span></div>';
+    }).join('');
+  };
+
+  Game.prototype.paintEnd = function () {
+    const state = this.session.state;
+    const layer = this.app.querySelector('.end');
+    if (!layer) return;
+    if (state.status === 'playing' || this.busy) { layer.hidden = true; return; }
+    const score = this.logic.scoreBreakdown(state);
+    const win = state.status === 'won';
+    if (win) {
+      const prev = this.store.cleared[this.battle.id];
+      if (!prev || score.total >= prev.score) {
+        this.store.cleared[this.battle.id] = {
+          score: score.total,
+          grid: score.grid,
+          gridMax: score.gridMax,
+          kills: score.kills,
+          mechs: score.mechs,
+        };
+      }
+      this.store.tutorialDone = this.store.tutorialDone || this.battle.tutorial;
+      this.store.resume = null;
+      saveStore(this.store);
+    }
+    layer.hidden = false;
+    layer.querySelector('.end-card').className = 'end-card ' + (win ? 'win' : 'lose');
+    const reason = state.lossReason === 'mechs' ? 'Мехи пали' : 'Энергия кончилась';
+    layer.querySelector('.end-card').innerHTML =
+      '<div class="sparks"></div>' +
+      '<h2>' + (win ? 'Здания целы' : reason) + '</h2>' +
+      '<p class="sub">' + this.battle.name + ' · ход ' + Math.min(state.turn, state.maxTurn) + '</p>' +
+      row('Энергия зданий', score.grid + '/' + score.gridMax) +
+      row('Враги сняты', String(score.kills)) +
+      row('Мехи', score.mechs + '/3') +
+      '<div class="score-row total"><span>Очки</span><span>' + score.total + '</span></div>' +
+      '<p class="sub">Энергия × 100 + враги × 25 + мехи × 50</p>' +
+      '<div class="end-actions"><button class="primary" type="button" data-again>Ещё раз</button><button type="button" data-list>К боям</button></div>';
+    layer.querySelector('[data-again]').onclick = () => this.startBattle(this.battle.id);
+    layer.querySelector('[data-list]').onclick = () => this.showSelect();
+  };
+
+  Game.prototype.showCard = function (id) {
+    this.cardId = id;
+    this.paintCard();
+  };
+
+  Game.prototype.paintCard = function () {
+    const card = this.app.querySelector('.unitcard');
+    if (!card || !this.session) return;
+    const unit = this.cardId ? this.logic.unitById(this.session.state, this.cardId) : null;
+    if (!unit) {
+      card.hidden = true;
+      return;
+    }
+    const passport = this.units.profile(unit.kind);
+    let pips = '';
+    for (let i = 0; i < unit.maxHp; i++) pips += '<i class="' + (i < unit.hp ? 'on' : '') + '"></i>';
+    let now = '';
+    if (unit.side === 'enemy') {
+      const info = this.logic.telegraph(this.session.state, unit);
+      now = '<p class="uc-now">' + this.units.describeHit(unit, info && info.impact) + '</p>';
+    }
+    card.hidden = false;
+    card.innerHTML = '<div class="uc-top" style="--accent:' + passport.accent + '">' +
+      svgUnit(unit.kind).replace('<svg', '<svg width="52" height="52"') +
+      '<span class="atk-icon">' + attackIcon(passport.icon) + '</span>' +
+      '<div><b>' + passport.name + '</b><div>' + passport.role + '</div>' +
+      '<div class="sub">ход ' + passport.move + '</div></div>' +
+      '<button type="button" class="ghost" data-close>Закрыть</button></div>' +
+      '<div class="uc-pips">' + pips + '</div>' +
+      diagramHtml(unit.kind) + now;
+    const close = card.querySelector('[data-close]');
+    if (close) close.onclick = () => { this.cardId = null; card.hidden = true; };
+  };
+
+  Game.prototype.onTile = function (x, y) {
+    if (this.busy || this.session.state.status !== 'playing') return;
+    this.cursor = { x, y };
+    const occ = this.logic.unitAt(this.session.state, x, y);
+    if (occ) this.showCard(occ.id);
+    const step = this.tutStep();
+    if (occ && occ.side === 'player' && (!this.selectedId || (occ.id !== this.selectedId && this.intentAt(x, y) !== 'act'))) {
+      this.select(occ.id);
+      return;
+    }
+    const intent = this.selectedId ? this.intentAt(x, y) : null;
+    if (step) {
+      if (step.allow.type === 'move' && intent === 'move') {
+        if (!this.tutorial.allows(step, { type: 'move', unitId: this.selectedId, x: x, y: y })) return this.deny();
+        this.commit('move', x, y);
+        return;
+      }
+      if (step.allow.type === 'arm' && intent === 'act') {
+        if (!this.tutorial.allows(step, { type: 'arm', intent: 'act', x: x, y: y })) return this.deny();
+        this.armed = { intent: 'act', x: x, y: y };
+        this.tutorial.advance(this.tut, { type: 'arm', intent: 'act', x: x, y: y });
+        this.draw();
+        return;
+      }
+      return this.deny();
+    }
+    if (!this.selectedId) return;
+    if (!intent) { this.paintOverlay(); return; }
+    if (this.fine && intent === 'move') this.commit(intent, x, y);
+    else if (this.fine && intent === 'act') {
+      this.armed = { intent: intent, x: x, y: y };
+      this.paintOverlay();
+      this.paintForecast();
+      const confirm = this.app.querySelector('#confirm');
+      confirm.hidden = false;
+      confirm.textContent = 'Ударить';
+    } else if (this.armed && this.armed.intent === intent && this.armed.x === x && this.armed.y === y) this.commit(intent, x, y);
+    else {
+      this.armed = { intent: intent, x: x, y: y };
+      this.paintOverlay();
+      this.paintForecast();
+      const confirm = this.app.querySelector('#confirm');
+      confirm.hidden = false;
+      confirm.textContent = intent === 'move' ? 'Идти' : 'Ударить';
+    }
+  };
+
+  Game.prototype.onHover = function (x, y) {
+    if (this.busy) return;
+    const occ = this.logic.unitAt(this.session.state, x, y);
+    if (occ) this.showCard(occ.id);
+    if (!this.selectedId) return;
+    const intent = this.intentAt(x, y);
+    if (!intent) {
+      if (this.hover) { this.hover = null; this.paintOverlay(); this.paintForecast(); }
+      return;
+    }
+    if (this.hover && this.hover.intent === intent && this.hover.x === x && this.hover.y === y) return;
+    this.hover = { intent, x, y };
+    this.paintOverlay();
+    this.paintForecast();
+  };
+
+  Game.prototype.select = function (id) {
+    const unit = this.logic.unitById(this.session.state, id);
+    if (!unit || unit.side !== 'player' || unit.hp <= 0) return;
+    if (id === this.selectedId) return;
+    const step = this.tutStep();
+    if (step) {
+      if (!this.tutorial.allows(step, { type: 'select', unitId: id })) return this.deny();
+      this.tutorial.advance(this.tut, { type: 'select', unitId: id });
+    }
+    this.selectedId = id;
+    this.mode = unit.moved && !unit.acted ? 'weapon' : 'move';
+    this.armed = null;
+    this.hover = null;
+    const confirm = this.app.querySelector('#confirm');
+    if (confirm) confirm.hidden = true;
+    this.draw();
+  };
+
+  Game.prototype.commit = function (intent, x, y) {
+    const cmd = intent === 'move'
+      ? { type: 'move', unitId: this.selectedId, x, y }
+      : { type: 'act', unitId: this.selectedId, x, y };
+    return this.run(cmd, () => {
+      if (intent === 'move') this.mode = 'weapon';
+      if (intent === 'act') {
+        const unit = this.logic.unitById(this.session.state, this.selectedId);
+        if (!unit || unit.acted) this.selectedId = null;
+      }
+    });
+  };
+
+  Game.prototype.run = async function (cmd, after) {
+    if (this.busy) return;
+    const result = this.logic.dispatch(this.session, cmd);
+    if (!result.ok) return;
+    this.busy = true;
+    this.armed = null;
+    this.hover = null;
+    const confirm = this.app.querySelector('#confirm');
+    if (confirm) confirm.hidden = true;
+    this.lastLines = narrate(result.events || []);
+    this.paintChrome();
+    try {
+      await this.play(result.events || []);
+    } finally {
+      this.busy = false;
+    }
+    if (after) after();
+    this.noteCommand(cmd);
+    this.persist();
+    this.draw();
+    this.showLast();
+  };
+
+  Game.prototype.showLast = function () {
+    const box = this.app.querySelector('.last');
+    if (!box) return;
+    if (!this.lastLines.length) { box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = '<b>Сделано.</b>' + list(this.lastLines);
+  };
+
+  Game.prototype.doUndo = function () {
+    if (this.busy) return;
+    if (this.tutStep()) return this.deny();
+    const result = this.logic.dispatch(this.session, { type: 'undo' });
+    if (!result.ok) return;
+    this.blip('move');
+    this.armed = null;
+    this.lastLines = ['Шаг отменён'];
+    const sel = this.selected();
+    if (sel && sel.acted) this.selectedId = null;
+    this.persist();
+    this.draw();
+    this.showLast();
+  };
+
+  Game.prototype.doReset = function () {
+    if (this.busy) return;
+    if (this.tutStep()) return this.deny();
+    const result = this.logic.dispatch(this.session, { type: 'reset' });
+    if (!result.ok) return;
+    this.selectedId = null;
+    this.mode = 'move';
+    this.armed = null;
+    this.lastLines = ['Ход сброшен'];
+    this.persist();
+    this.draw();
+    this.showLast();
+  };
+
+  Game.prototype.doWait = function () {
+    if (this.tutStep()) return this.deny();
+    if (!this.selectedId) return;
+    this.run({ type: 'wait', unitId: this.selectedId }, () => { this.selectedId = null; });
+  };
+
+  Game.prototype.doEnd = function () {
+    if (this.busy || this.session.state.status !== 'playing') return;
+    const step = this.tutStep();
+    if (step && !this.tutorial.allows(step, { type: 'end' })) return this.deny();
+    this.selectedId = null;
+    this.run({ type: 'end' });
+  };
+
+  Game.prototype.play = async function (events) {
+    if (this.reduced || !events.length) return;
+    const groups = group(events);
+    for (const bag of groups) {
+      const head = bag[0];
+      if (head.t === 'marker') await this.banner(head.id);
+      else if (head.t === 'move') await this.animMove(head);
+      else if (head.t === 'shot') await this.animShot(head);
+      else if (head.t === 'push') await this.animPush(head);
+      else await this.animImpact(bag);
+    }
+  };
+
+  Game.prototype.banner = function (id) {
+    const text = {
+      resolve: 'Враги бьют',
+      spawn: 'Новые враги',
+      plan: 'Враги занимают клетки',
+      win: 'Здания целы',
+      player: 'Ваш ход',
+    }[id];
+    if (!text) return Promise.resolve();
+    const el = document.createElement('div');
+    el.className = 'banner';
+    el.textContent = text;
+    this.board.appendChild(el);
+    return this.wait(id === 'resolve' ? 420 : 280).then(() => el.remove());
+  };
+
+  Game.prototype.animMove = function (e) {
+    const el = this.piece(e.id);
+    if (!el) return Promise.resolve();
+    this.blip('move');
+    return this.tweenPath(el, e.path, 110);
+  };
+
+  Game.prototype.animPush = function (e) {
+    const el = this.piece(e.id);
+    if (!el) return Promise.resolve();
+    this.blip('hit');
+    return this.tweenPath(el, [e.from, e.to], 160);
+  };
+
+  Game.prototype.animate = function (total, onFrame) {
+    if (this.reduced || !(total > 0)) {
+      onFrame(1);
+      return Promise.resolve();
+    }
+    const start = performance.now();
+    return new Promise((resolve) => {
+      const tick = () => {
+        const u = Math.min(1, (performance.now() - start) / total);
+        onFrame(u);
+        if (u < 1) setTimeout(tick, 16);
+        else resolve();
+      };
+      setTimeout(tick, 16);
+    });
+  };
+
+  Game.prototype.tweenPath = function (el, path, ms) {
+    if (!path || path.length < 2) return Promise.resolve();
+    const step = this.tile + this.gap;
+    const total = (path.length - 1) * ms / this.pace;
+    return this.animate(total, (u) => {
+      const f = u * (path.length - 1);
+      const i = Math.min(path.length - 2, Math.floor(f));
+      const local = f - i;
+      const eased = local * local * (3 - 2 * local);
+      const a = path[i];
+      const b = path[i + 1];
+      const x = a.x + (b.x - a.x) * eased;
+      const y = a.y + (b.y - a.y) * eased;
+      el.style.transform = 'translate(' + (x * step) + 'px,' + (y * step) + 'px)';
+    });
+  };
+
+  Game.prototype.animShot = function (e) {
+    this.blip(e.kind === 'shell' ? 'shot' : 'hit');
+    if (e.kind === 'shell') return this.animShell(e);
+    if (e.kind === 'hook') return this.animHook(e);
+    if (e.kind === 'lance') return this.animLance(e);
+    return this.animLunge(e);
+  };
+
+  Game.prototype.animShell = function (e) {
+    const shell = document.createElement('div');
+    shell.className = 'shell';
+    this.board.appendChild(shell);
+    const step = this.tile + this.gap;
+    const mid = this.tile / 2;
+    const a = { x: e.from.x * step + mid, y: e.from.y * step + mid };
+    const b = { x: e.to.x * step + mid, y: e.to.y * step + mid };
+    const lift = 70 + Math.hypot(b.x - a.x, b.y - a.y) * 0.25;
+    const total = 320 / this.pace;
+    return this.animate(total, (t) => {
+      const x = (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * ((a.x + b.x) / 2) + t * t * b.x;
+      const y = (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * ((a.y + b.y) / 2 - lift) + t * t * b.y;
+      shell.style.left = x + 'px';
+      shell.style.top = y + 'px';
+    }).then(() => {
+      shell.remove();
+      this.flash(e.to.x, e.to.y);
+    });
+  };
+
+  Game.prototype.animHook = function (e) {
+    const step = this.tile + this.gap;
+    const mid = this.tile / 2;
+    const a = { x: e.from.x * step + mid, y: e.from.y * step + mid };
+    const b = { x: e.to.x * step + mid, y: e.to.y * step + mid };
+    const svgNs = 'http:' + '//www.w3.org/2000/svg';
+    const line = document.createElementNS(svgNs, 'line');
+    line.setAttribute('x1', a.x);
+    line.setAttribute('y1', a.y);
+    line.setAttribute('x2', a.x);
+    line.setAttribute('y2', a.y);
+    line.setAttribute('stroke', '#ffd7a4');
+    line.setAttribute('stroke-width', '3');
+    this.fx.appendChild(line);
+    const total = 220 / this.pace;
+    return this.animate(total, (t) => {
+      line.setAttribute('x2', a.x + (b.x - a.x) * t);
+      line.setAttribute('y2', a.y + (b.y - a.y) * t);
+    }).then(() => line.remove());
+  };
+
+  Game.prototype.animLance = function (e) {
+    const tiles = e.tiles && e.tiles.length ? e.tiles : [e.to];
+    tiles.forEach((cell, i) => {
+      const el = this.tileNodes[cell.y * 8 + cell.x];
+      if (el) setTimeout(() => el.classList.add('hitflash'), i * 40);
+    });
+    return this.wait(180 + tiles.length * 40);
+  };
+
+  Game.prototype.animLunge = function (e) {
+    const el = e.by ? this.piece(e.by) : null;
+    if (!el) return this.wait(80);
+    const rot = el.querySelector('.rot');
+    const back = rot.style.transform;
+    const kick = e.dir === 'N' ? 'translateY(-6px)' : e.dir === 'S' ? 'translateY(6px)' : e.dir === 'E' ? 'translateX(6px)' : 'translateX(-6px)';
+    rot.style.transform = back + ' ' + kick;
+    return this.wait(90).then(() => { rot.style.transform = back; return this.wait(40); });
+  };
+
+  Game.prototype.animImpact = function (bag) {
+    this.paintTiles();
+    this.paintChrome();
+    let power = 0;
+    for (const e of bag) {
+      if (e.t === 'spawn') this.spawnPiece(e);
+      if (e.t === 'shake') power = Math.max(power, e.power || 1);
+      if (e.t === 'damage') this.float(e.x, e.y, '−' + e.amount);
+      if (e.t === 'death') {
+        this.blip('die');
+        const el = this.piece(e.id);
+        if (el) {
+          el.style.transition = 'transform 180ms ease, opacity 180ms ease';
+          el.style.opacity = '0';
+          if (e.cause === 'water') el.style.filter = 'saturate(0.2) brightness(0.6)';
+        }
+      }
+      if (e.t === 'terrain') {
+        const tile = this.tileNodes[e.y * 8 + e.x];
+        if (tile) tile.classList.add('hitflash');
+      }
+      if (e.t === 'spawn') this.blip('shot');
+      if ((e.t === 'damage' && e.target === 'tile') || e.t === 'bump') {
+        const tile = this.tileNodes[e.y * 8 + e.x];
+        if (tile) tile.classList.add('hitflash');
+      }
+    }
+    if (power && !this.reduced) {
+      this.board.style.setProperty('--shake', (2 + power * 2) + 'px');
+      this.board.classList.remove('shake');
+      void this.board.offsetWidth;
+      this.board.classList.add('shake');
+    }
+    if (bag.some((e) => e.t === 'damage' && e.target === 'tile' && e.terrain === 'building')) this.blip('hit');
+    return this.wait(220);
+  };
+
+  Game.prototype.float = function (x, y, text) {
+    const el = document.createElement('div');
+    el.className = 'floater';
+    el.textContent = text;
+    const step = this.tile + this.gap;
+    el.style.left = (x * step + this.tile / 2) + 'px';
+    el.style.top = (y * step + this.tile * 0.35) + 'px';
+    this.board.appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  };
+
+  Game.prototype.flash = function (x, y) {
+    const el = document.createElement('div');
+    el.className = 'impact';
+    const step = this.tile + this.gap;
+    el.style.left = (x * step + this.tile / 2) + 'px';
+    el.style.top = (y * step + this.tile / 2) + 'px';
+    this.board.appendChild(el);
+    setTimeout(() => el.remove(), 300);
+  };
+
+  Game.prototype.piece = function (id) {
+    return this.piecesEl.querySelector('[data-id="' + id + '"]');
+  };
+
+  Game.prototype.wait = function (ms) {
+    return new Promise((resolve) => setTimeout(resolve, this.reduced ? 0 : ms / this.pace));
+  };
+
+  Game.prototype.onKey = function (e) {
+    if (this.helpOpen) {
+      if (e.code === 'Escape') this.closeHelp();
+      return;
+    }
+    if (this.screen !== 'battle' || !this.session || this.busy) return;
+    const code = e.code;
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(code)) e.preventDefault();
+    if (code === 'Digit1') this.selectNth(0);
+    else if (code === 'Digit2') this.selectNth(1);
+    else if (code === 'Digit3') this.selectNth(2);
+    else if (code === 'ArrowUp') this.nudge(0, -1);
+    else if (code === 'ArrowDown') this.nudge(0, 1);
+    else if (code === 'ArrowLeft') this.nudge(-1, 0);
+    else if (code === 'ArrowRight') this.nudge(1, 0);
+    else if (code === 'Enter' || code === 'Space') this.onTile(this.cursor.x, this.cursor.y);
+    else if (code === 'Escape') { this.selectedId = null; this.armed = null; this.draw(); }
+    else if (code === 'Backspace' || code === 'KeyU') this.doUndo();
+    else if (code === 'KeyR') this.doReset();
+    else if (code === 'KeyE') this.doEnd();
+    else if (code === 'KeyM') { this.mode = 'move'; this.paintModes(); this.paintOverlay(); }
+    else if (code === 'KeyF') { this.mode = 'weapon'; this.paintModes(); this.paintOverlay(); }
+    else if (code === 'KeyH') this.openHelp();
+  };
+
+  Game.prototype.selectNth = function (index) {
+    const order = ['klin', 'duga', 'kryuk'];
+    const id = order[index];
+    if (this.logic.unitById(this.session.state, id)) this.select(id);
+  };
+
+  Game.prototype.nudge = function (dx, dy) {
+    this.cursorOn = true;
+    this.cursor = {
+      x: Math.max(0, Math.min(7, this.cursor.x + dx)),
+      y: Math.max(0, Math.min(7, this.cursor.y + dy)),
+    };
+    this.hover = null;
+    const intent = this.intentAt(this.cursor.x, this.cursor.y);
+    if (intent && this.fine) this.hover = { intent, x: this.cursor.x, y: this.cursor.y };
+    this.paintOverlay();
+    this.paintForecast();
+  };
+
+  Game.prototype.openHelp = function () {
+    this.helpOpen = true;
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = '<div class="sheet" role="dialog" aria-labelledby="help-title"><h2 id="help-title">Правила</h2>' + helpHtml() +
+      '<p><button class="primary" type="button" id="close-help">Закрыть</button></p></div>';
+    document.body.appendChild(modal);
+    modal.querySelector('#close-help').onclick = () => this.closeHelp();
+    modal.addEventListener('click', (e) => { if (e.target === modal) this.closeHelp(); });
+    this.helpEl = modal;
+  };
+
+  Game.prototype.closeHelp = function () {
+    this.helpOpen = false;
+    if (this.helpEl) this.helpEl.remove();
+    this.helpEl = null;
+  };
+
+  Game.prototype.spawnPiece = function (e) {
+    if (this.piece(e.id)) return;
+    const el = document.createElement('div');
+    el.dataset.id = e.id;
+    el.className = 'piece enemy';
+    el.innerHTML = '<div class="rot">' + svgUnit(e.kind) + '</div><span class="tag">' + (TAG[e.kind] || '') + '</span><span class="badge" hidden></span><span class="hp"></span>';
+    const step = this.tile + this.gap;
+    el.style.transform = 'translate(' + (e.x * step) + 'px,' + (e.y * step) + 'px)';
+    this.piecesEl.appendChild(el);
+  };
+
+  Game.prototype.playCommands = async function (cmds, pace) {
+    this.pace = pace || 1;
+    for (const cmd of cmds) {
+      if (!this.session || this.session.state.status !== 'playing') break;
+      const result = this.logic.dispatch(this.session, cmd);
+      if (!result.ok) break;
+      this.busy = true;
+      this.lastLines = narrate(result.events || []);
+      await this.play(result.events || []);
+      this.busy = false;
+      this.draw();
+    }
+    this.pace = 1;
+    this.persist();
+    this.draw();
+  };
+
+  function group(events) {
+    const groups = [];
+    let bag = [];
+    const flush = () => { if (bag.length) groups.push(bag); bag = []; };
+    for (const e of events) {
+      if (e.t === 'move' || e.t === 'shot' || e.t === 'push' || e.t === 'marker') {
+        flush();
+        groups.push([e]);
+      } else bag.push(e);
+    }
+    flush();
+    return groups;
+  }
+
+  function list(lines) {
+    if (!lines.length) return '';
+    return '<ul>' + lines.map((line) => '<li>' + line + '</li>').join('') + '</ul>';
+  }
+
+  function row(k, v) {
+    return '<div class="score-row"><span>' + k + '</span><span>' + v + '</span></div>';
+  }
+
+  function labelTile(tile) {
+    const kind = tile.terrain === 'water' ? 'яма' : tile.terrain === 'mountain' ? 'гора' : tile.terrain === 'building' ? (tile.objective ? 'большое здание' : 'здание') : 'земля';
+    return 'Ряд ' + (tile.y + 1) + ', столбец ' + (tile.x + 1) + ', ' + kind;
+  }
+
+  function decoOf(tile) {
+    if (tile.terrain === 'mountain') {
+      return '<svg viewBox="0 0 64 64" width="100%" height="100%"><polygon points="6,56 32,8 58,56" fill="#8ea0b4"/><polygon points="32,8 42,30 26,28" fill="#d5dee8" opacity=".8"/></svg>';
+    }
+    if (tile.terrain === 'building') {
+      const antenna = tile.objective ? '<rect x="30" y="4" width="4" height="10" fill="#ffe08a"/><circle cx="32" cy="4" r="3" fill="#fff4c8"/>' : '';
+      return '<svg viewBox="0 0 64 64" width="100%" height="100%">' + antenna +
+        '<polygon points="10,30 32,14 54,30" fill="#f0c27a"/><rect x="14" y="30" width="36" height="22" rx="2" fill="#c9843a"/>' +
+        '<rect x="18" y="36" width="6" height="6" fill="#ffe08a"/><rect x="40" y="36" width="6" height="6" fill="#ffe08a"/>' +
+        '<rect x="28" y="38" width="8" height="14" fill="#3a2414"/></svg>';
+    }
+    if (tile.rubble === 'building') {
+      return '<svg viewBox="0 0 64 64" width="100%" height="100%"><rect x="12" y="36" width="18" height="10" fill="#6a5344"/><rect x="32" y="40" width="16" height="8" fill="#4e3b32"/><path d="M16 30 L30 44" stroke="#2a211c" stroke-width="2"/></svg>';
+    }
+    if (tile.spawn) {
+      return '<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="12" fill="none" stroke="#b450e0" stroke-width="2" stroke-dasharray="3 3"/><circle cx="32" cy="32" r="3" fill="#d9a0ff"/></svg>';
+    }
+    return '';
+  }
+
+  function mini(battle) {
+    let html = '<div class="mini" aria-hidden="true">';
+    const chars = battle.map.join('');
+    for (const ch of chars) {
+      const cls = { '.': 'g', '~': 'w', '#': 'n', B: 'b', R: 'r', S: 's' }[ch] || 'g';
+      html += '<i class="m-' + cls + '"></i>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function heroArt() {
+    return '<svg viewBox="0 0 640 420">' +
+      '<rect width="640" height="420" fill="#141924"/>' +
+      '<path d="M40 300 H600 V360 H40 Z" fill="#1c2433"/>' +
+      '<path d="M70 250 H250 V300 H70 Z" fill="#243044"/>' +
+      '<path d="M250 220 H430 V300 H250 Z" fill="#2a3346"/>' +
+      '<path d="M430 260 H580 V300 H430 Z" fill="#243044"/>' +
+      '<path d="M300 80 C340 140 300 180 320 230" fill="none" stroke="#14545c" stroke-width="28"/>' +
+      '<path d="M300 80 C340 140 300 180 320 230" fill="none" stroke="#7ed0c4" stroke-width="4"/>' +
+      '<polygon points="120,250 150,190 180,250" fill="#8ea0b4"/>' +
+      '<rect x="200" y="200" width="46" height="50" fill="#c9843a"/><polygon points="190,200 223,168 256,200" fill="#f0c27a"/>' +
+      '<circle cx="223" cy="168" r="4" fill="#ffe08a"/>' +
+      '<g transform="translate(360,168)">' + svgUnit('klin').replace('<svg', '<svg width="70" height="70"') + '</g>' +
+      '<g transform="translate(430,190)">' + svgUnit('duga').replace('<svg', '<svg width="64" height="64"') + '</g>' +
+      '<g transform="translate(500,176)">' + svgUnit('kryuk').replace('<svg', '<svg width="64" height="64"') + '</g>' +
+      '<g transform="translate(250,150)">' + svgUnit('scara').replace('<svg', '<svg width="58" height="58"') + '</g>' +
+      '</svg>';
+  }
+
+  function attackIcon(icon) {
+    if (icon === 'push') return '<svg viewBox="0 0 16 16"><path d="M2 8 H10 M7 4 L12 8 L7 12" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+    if (icon === 'arc') return '<svg viewBox="0 0 16 16"><path d="M2 12 Q8 2 14 12" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+    if (icon === 'hook') return '<svg viewBox="0 0 16 16"><path d="M4 13 V5 H10 Q13 5 13 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+    if (icon === 'jab') return '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3" fill="currentColor"/></svg>';
+    if (icon === 'lance') return '<svg viewBox="0 0 16 16"><path d="M8 14 V3 M5 6 L8 2 L11 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+    return '<svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="2" fill="currentColor"/></svg>';
+  }
+
+  function diagramHtml(kind) {
+    const diagram = globalThis.KromkaUnits.profile(kind).diagram;
+    let html = '<div class="minigrid" style="--n:' + diagram.size + '">';
+    for (let y = 0; y < diagram.size; y++) {
+      for (let x = 0; x < diagram.size; x++) {
+        const cell = diagram.cells.find((item) => item.x === x && item.y === y);
+        const mark = cell ? cell.kind : 'empty';
+        const arrow = cell && cell.arrow ? ' data-arrow="' + cell.arrow + '"' : '';
+        const amount = cell && cell.amount ? '<b>' + cell.amount + '</b>' : '';
+        html += '<i class="' + mark + '"' + arrow + '>' + amount + '</i>';
+      }
+    }
+    return html + '</div><p class="diagram-note">' + diagram.note + '</p>';
+  }
+
+  function compareRow(side) {
+    const book = globalThis.KromkaUnits.PROFILES;
+    const kinds = Object.keys(book).filter((kind) => book[kind].side === side);
+    return '<div class="compare">' + kinds.map((kind) => {
+      const card = book[kind];
+      return '<article class="compare-card" style="--accent:' + card.accent + '">' +
+        '<div class="compare-top">' + svgUnit(kind).replace('<svg', '<svg width="48" height="48"') +
+        '<span class="atk-icon">' + attackIcon(card.icon) + '</span></div>' +
+        '<b>' + card.name + '</b><div>' + card.role + '</div>' +
+        '<div class="sub">жизни ' + card.hp + ' · ход ' + card.move + '</div>' +
+        diagramHtml(kind) + '</article>';
+    }).join('') + '</div>';
+  }
+
+  function helpHtml() {
+    return [
+      '<p>Пять ходов. Жёлтая шкала — энергия зданий. Ноль — проигрыш. Нет мехов — тоже проигрыш.</p>',
+      '<p><i class="swatch red"></i>удар врага <i class="swatch blue"></i>ход <i class="swatch gold"></i>урон <i class="swatch push"></i>толчок <i class="swatch pull"></i>тяга</p>',
+      '<h3>Мехи рядом</h3>',
+      compareRow('player'),
+      '<h3>Враги рядом</h3>',
+      compareRow('enemy'),
+      '<p>Толкнули врага — его красная клетка переехала. Яма уничтожает. Упор в фигуру, гору или здание даёт по 1 урона обоим. Враги бьют в начале своего хода по цифрам: игла, жук, молот.</p>',
+      '<p>За ход мех может пойти, потом ударить. «Конец хода» отдаёт ход врагам. Наведите или нажмите фигуру — откроется её карточка.</p>',
+    ].join('');
+  }
+
+  function mount(app) {
+    if (!app) return null;
+    const game = new Game(app);
+    globalThis.__kromka = game;
+    if (!game.store.tutorialDone) game.startBattle('obryv');
+    else game.showTitle();
+    return game;
+  }
+
+  return { mount, narrate, Game };
+});
+
+</script>
+</body>
+</html>
