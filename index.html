@@ -119,7 +119,8 @@ p { margin: 0; }
 .top h1 { font-size: 34px; }
 .linkish { background: none; border: none; color: var(--copper-2); padding: 8px 0; min-height: 44px; }
 
-.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.tally { color: var(--copper-2); font-size: 18px; margin-right: auto; margin-left: 14px; }
 .card {
   text-align: left;
   background: var(--panel);
@@ -131,7 +132,7 @@ p { margin: 0; }
   gap: 8px;
   min-height: 100%;
 }
-.card h2 { font-size: 28px; }
+.card h2 { font-size: 26px; }
 .rating {
   display: inline-flex;
   align-self: flex-start;
@@ -145,6 +146,7 @@ p { margin: 0; }
 }
 .rating.mid { background: var(--teal); }
 .rating.hard { background: var(--enemy); color: #2a0c12; }
+.rating.max { background: var(--violet); color: #24083a; }
 .blurb { color: var(--muted); font-size: 14px; min-height: 3.2em; }
 .record { font-size: 14px; color: var(--copper-2); }
 .mini {
@@ -203,7 +205,7 @@ p { margin: 0; }
   box-shadow: 0 0 8px rgba(226, 161, 90, 0.55);
 }
 .pips i.pop { animation: pip 420ms ease; }
-.stage { grid-area: stage; display: flex; justify-content: flex-start; align-items: flex-start; }
+.stage { grid-area: stage; display: flex; justify-content: flex-start; align-items: flex-start; min-width: 0; }
 .frame {
   padding: 10px;
   border-radius: 20px;
@@ -256,6 +258,27 @@ p { margin: 0; }
 .tile.rubble-mountain { background: #3d4450; }
 .tile.spawn { box-shadow: inset 0 0 0 2px rgba(180, 90, 220, 0.7); }
 .tile .deco { position: absolute; inset: 0; pointer-events: none; }
+.rift-unit { position: absolute; inset: 12%; opacity: .5; filter: grayscale(.35); }
+.rift-unit svg { width: 100%; height: 100%; display: block; }
+.rift-unit b {
+  position: absolute;
+  right: -8%;
+  top: -8%;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 99px;
+  background: #5b2a78;
+  color: #fff;
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 0 0 1px #d9a0ff;
+}
+.rift-unit.now { opacity: .95; filter: none; animation: riftpulse 1.2s ease-in-out infinite; }
+.rift-unit.now b { background: #d9a0ff; color: #2a0c3a; }
+@keyframes riftpulse { 50% { transform: scale(.86); } }
+.swatch.rift { background: transparent; box-shadow: inset 0 0 0 2px #b450e0; }
 .tile.move {
   background-color: rgba(58, 126, 230, 0.55);
   box-shadow: inset 0 0 0 3px #7eb6ff;
@@ -322,6 +345,8 @@ p { margin: 0; }
   border-radius: 14px;
   padding: 10px;
 }
+.unitcard { order: 10; }
+.keys { order: 11; }
 .uc-top { display: flex; gap: 8px; align-items: center; position: relative; }
 .uc-top svg { width: 52px; height: 52px; flex: none; }
 .uc-top .atk-icon { position: static; width: 22px; height: 22px; }
@@ -353,6 +378,7 @@ p { margin: 0; }
 .minigrid i.push { background: #ffc14d; }
 .minigrid i.pull { background: #3ec8c0; }
 .minigrid i.ray { background: #6a3d86; }
+.minigrid i.over { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); border-radius: 50%; transform: scale(.45); }
 .minigrid i[data-arrow]::after {
   content: "";
   position: absolute;
@@ -528,7 +554,7 @@ body.teaching .tut-hot {
   background: radial-gradient(circle at 35% 35%, #fff, #ffb15a 40%, #c4512a);
   box-shadow: 0 0 10px #ffb15a;
 }
-.impact {
+.blast {
   position: absolute;
   width: 36px;
   height: 36px;
@@ -556,6 +582,8 @@ body.teaching .tut-hot {
   padding: 8px;
 }
 .mech.on { border-color: var(--copper); box-shadow: inset 0 0 0 1px var(--copper); }
+.mech.dead { opacity: .45; border-style: dashed; }
+.mech.done:not(.on) { opacity: .7; }
 .mech .who { font-weight: 700; }
 .mech .sub { color: var(--muted); font-size: 13px; }
 .mech .mini-svg { width: 42px; height: 42px; }
@@ -573,6 +601,17 @@ body.teaching .tut-hot {
 .forecast.bad strong { color: var(--danger); }
 .forecast ul, .last ul { margin: 6px 0 0; padding-left: 18px; }
 .hint { border-color: rgba(226,161,90,.45); background: #2a2218; }
+.bar { display: flex; flex-direction: column; gap: 10px; }
+.barcast { display: none; font-size: 14px; font-weight: 600; color: var(--good); }
+.barcast.bad { color: var(--danger); }
+.stars { color: var(--copper); letter-spacing: 0.12em; }
+.stars.big { font-size: 34px; line-height: 1; margin: 2px 0 8px; display: block; }
+.stars .off { color: #4a4250; }
+.goal { display: flex; gap: 8px; padding: 4px 0; font-size: 15px; }
+.goal i { font-style: normal; width: 18px; color: var(--good); }
+.goal.miss { color: var(--muted); }
+.goal.miss i { color: var(--muted); }
+.ord.rift { background: #5b2a78; }
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .actions .endturn { grid-column: 1 / -1; }
 .endturn.ready { box-shadow: 0 0 0 2px var(--copper); }
@@ -626,7 +665,8 @@ body.teaching .tut-hot {
 .score-row { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid var(--line); }
 .score-row span:last-child { white-space: nowrap; }
 .score-row.total { font-size: 20px; font-family: var(--serif); }
-.end-actions { display: flex; gap: 8px; margin-top: 16px; }
+.end-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.end-actions .wide { flex: 1 1 100%; }
 .end-actions button { flex: 1; }
 .sparks { height: 8px; margin-bottom: 8px; }
 .win h2 { color: var(--copper-2); }
@@ -687,26 +727,45 @@ body.teaching .tut-hot {
 }
 
 @media (max-width: 860px) {
-  .battle-top .name { flex: 1 1 100%; }
   .battle-top { gap: 6px; }
   .hero { grid-template-columns: 1fr; min-height: auto; gap: 18px; }
-  .cards { grid-template-columns: 1fr; }
   .battle {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "top"
       "stage"
       "dock";
     padding: 8px 8px 20px;
   }
-  .battle-top .name { font-size: 24px; }
-  .mechs { flex-direction: row; }
-  .unitcard {
-    position: sticky;
-    bottom: 8px;
-    z-index: 15;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  .battle-top .name { font-size: 22px; flex: 1 1 auto; margin-right: auto; }
+  .battle-top button, .turn-pill { min-height: 36px; padding: 4px 10px; font-size: 14px; }
+  .gridbar { flex: 1 1 100%; order: 5; }
+  .nowbar { order: 6; padding: 6px 10px; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+  .nowbar p { font-size: 14px; line-height: 1.3; flex: 1 1 100%; }
+  .nowbar button { min-height: 32px; padding: 2px 12px; }
+  .unitcard { order: 0; }
+  .legend { display: none; }
+  .battle { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+  .stage { justify-content: center; }
+  .frame { padding: 6px; border-radius: 14px; }
+  .mechs { flex-direction: row; order: -2; }
+  .modes { order: -1; }
+  .bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 18;
+    gap: 6px;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: var(--ink);
+    border-top: 1px solid rgba(226, 161, 90, 0.4);
   }
+  .barcast { display: block; }
+  .actions { grid-template-columns: 1fr 1fr 1.6fr; }
+  .actions .endturn { grid-column: auto; }
+  .actions button { padding: 8px 6px; font-size: 14px; }
+  .cards { grid-template-columns: 1fr 1fr; }
   .compare { grid-template-columns: 1fr; }
   .mech { flex: 1; grid-template-columns: 1fr; padding: 8px 6px; min-width: 0; }
   .mech .mini-svg { display: none; }
@@ -756,6 +815,7 @@ body.teaching .tut-hot {
     scara: { side: 'enemy', move: 3, hp: 2, initiative: 2, weapon: 'jab', dmg: 1 },
     needle: { side: 'enemy', move: 4, hp: 1, initiative: 3, weapon: 'lance', dmg: 1, length: 3 },
     hammer: { side: 'enemy', move: 2, hp: 3, initiative: 1, weapon: 'slam', dmg: 2 },
+    mortar: { side: 'enemy', move: 2, hp: 2, initiative: 0, weapon: 'lob', dmg: 1, range: 3 },
   };
 
   function dirById(id) {
@@ -1366,6 +1426,20 @@ body.teaching .tut-hot {
       }
       return { id: unit.id, dir, order: unit.order, damage: kind.dmg, tiles, impact, weapon: 'lance' };
     }
+    if (kind.weapon === 'lob') {
+      const d = dirById(dir);
+      const p = { x: unit.x + d.x * kind.range, y: unit.y + d.y * kind.range };
+      const tiles = inb(state, p.x, p.y) ? [p] : [];
+      let impact = null;
+      if (tiles.length) {
+        const occ = unitAt(state, p.x, p.y);
+        const tile = tileAt(state, p.x, p.y);
+        if (occ || tile.terrain === 'building' || tile.terrain === 'mountain') {
+          impact = { x: p.x, y: p.y, damage: kind.dmg, what: occ ? 'unit' : tile.terrain };
+        }
+      }
+      return { id: unit.id, dir, order: unit.order, damage: kind.dmg, tiles, impact, weapon: 'lob' };
+    }
     return null;
   }
 
@@ -1405,6 +1479,14 @@ body.teaching .tut-hot {
         }
       }
       events.push({ t: 'whiff', by: enemy.id });
+      return;
+    }
+    if (kind.weapon === 'lob') {
+      const d = dirById(enemy.dir);
+      const p = { x: enemy.x + d.x * kind.range, y: enemy.y + d.y * kind.range };
+      events.push({ t: 'shot', kind: 'lob', from: { x: enemy.x, y: enemy.y }, to: p, dir: enemy.dir, by: enemy.id, tiles: info ? info.tiles : [] });
+      const hit = inb(state, p.x, p.y) ? hurtCell(state, p.x, p.y, kind.dmg, events, enemy.id) : null;
+      if (!hit) events.push({ t: 'whiff', by: enemy.id });
     }
   }
 
@@ -1477,6 +1559,10 @@ body.teaching .tut-hot {
         if (!inb(state, x, y)) break;
         cells.push({ x, y });
       }
+    } else if (kind.weapon === 'lob') {
+      const x = spot.x + d.x * kind.range;
+      const y = spot.y + d.y * kind.range;
+      if (inb(state, x, y)) cells.push({ x, y });
     } else {
       const x = spot.x + d.x;
       const y = spot.y + d.y;
@@ -1553,16 +1639,30 @@ body.teaching .tut-hot {
     }
   }
 
+  function pendingSpawns(state) {
+    return state.spawns.filter((s) => !s.done && s.afterTurn >= state.turn && s.afterTurn < state.maxTurn);
+  }
+
+  /* Врагов нет и больше не будет: незачем доигрывать пустые ходы. */
+  function fieldClear(state) {
+    return !state.units.some((u) => u.side === 'enemy' && u.hp > 0) && pendingSpawns(state).length === 0;
+  }
+
   function doEnd(state, events) {
     resolveAttacks(state, events);
     if (state.status !== 'playing') return;
-    if (state.turn >= state.maxTurn) {
+    if (state.turn >= state.maxTurn || fieldClear(state)) {
       state.status = 'won';
       events.push({ t: 'marker', id: 'win' });
       return;
     }
     runSpawns(state, events);
     if (state.status !== 'playing') return;
+    if (fieldClear({ ...state, turn: state.turn + 1 })) {
+      state.status = 'won';
+      events.push({ t: 'marker', id: 'win' });
+      return;
+    }
     planEnemies(state, events);
     state.turn += 1;
     for (const unit of state.units) {
@@ -1647,12 +1747,20 @@ body.teaching .tut-hot {
     const grid = Math.max(0, state.gridHp);
     const mechs = state.units.filter((u) => u.side === 'player' && u.hp > 0).length;
     const kills = state.kills;
+    const mechHp = state.units.reduce((sum, u) => sum + (u.side === 'player' ? Math.max(0, u.hp) : 0), 0);
+    const won = state.status === 'won';
+    const intact = grid === state.gridMax;
+    const clear = !state.units.some((u) => u.side === 'enemy' && u.hp > 0);
     return {
       grid,
       gridMax: state.gridMax,
       mechs,
+      mechHp,
       kills,
-      total: grid * 100 + kills * 25 + mechs * 50,
+      intact,
+      clear,
+      stars: won ? 1 + (intact ? 1 : 0) + (clear ? 1 : 0) : 0,
+      total: grid * 100 + kills * 25 + mechHp * 10,
     };
   }
 
@@ -1678,6 +1786,8 @@ body.teaching .tut-hot {
     weaponTargets,
     pathTo,
     scoreBreakdown,
+    pendingSpawns,
+    bestPlan,
     tileAt,
     unitAt,
     unitById,
@@ -1687,7 +1797,7 @@ body.teaching .tut-hot {
   };
 });
 
-/* Три авторских боя. Буквы карты — только местность; станки и изломы заданы списком.
+/* Бои по возрастанию сложности. Буквы карты — только местность; мехи и враги заданы списком.
    . земля  ~ провал  # утёс  B цех  R узел  S разлом */
 (function (root, factory) {
   const api = factory();
@@ -1724,7 +1834,6 @@ body.teaching .tut-hot {
         { afterTurn: 1, x: 3, y: 7, kind: 'scara' },
         { afterTurn: 2, x: 7, y: 7, kind: 'needle' },
         { afterTurn: 3, x: 3, y: 7, kind: 'hammer' },
-        { afterTurn: 4, x: 7, y: 7, kind: 'scara' },
       ],
       tutorial: true,
       /* Линия первого хода, которой учит подсказка. Решатель её не читает. */
@@ -1732,6 +1841,44 @@ body.teaching .tut-hot {
         { type: 'move', unitId: 'klin', x: 5, y: 3 },
         { type: 'act', unitId: 'klin', x: 6, y: 3 },
         { type: 'act', unitId: 'duga', x: 3, y: 3 },
+      ],
+    },
+    {
+      id: 'kotel',
+      name: 'Котёл',
+      rating: 'лёгкий',
+      blurb: 'Три врага бьют по трём зданиям. Крюк стаскивает молота в яму.',
+      map: [
+        'B......#',
+        '........',
+        '~.......',
+        '........',
+        '....B.B.',
+        '........',
+        '..B.R..B',
+        'S......S',
+      ],
+      units: [
+        { id: 'hammer', kind: 'hammer', x: 0, y: 1, dir: 'N' },
+        { id: 'needle', kind: 'needle', x: 6, y: 1, dir: 'S' },
+        { id: 'scara', kind: 'scara', x: 3, y: 4, dir: 'E' },
+        { id: 'kryuk', kind: 'kryuk', x: 2, y: 5, dir: 'W' },
+        { id: 'duga', kind: 'duga', x: 6, y: 5, dir: 'N' },
+        { id: 'klin', kind: 'klin', x: 3, y: 6, dir: 'N' },
+      ],
+      spawns: [
+        { afterTurn: 1, x: 0, y: 7, kind: 'scara' },
+        { afterTurn: 2, x: 7, y: 7, kind: 'needle' },
+        { afterTurn: 3, x: 0, y: 7, kind: 'hammer' },
+        { afterTurn: 4, x: 7, y: 7, kind: 'scara' },
+      ],
+      tutorial: false,
+      lesson: [
+        { type: 'move', unitId: 'kryuk', x: 0, y: 5 },
+        { type: 'act', unitId: 'kryuk', x: 0, y: 1 },
+        { type: 'move', unitId: 'klin', x: 3, y: 5 },
+        { type: 'act', unitId: 'klin', x: 3, y: 4 },
+        { type: 'act', unitId: 'duga', x: 6, y: 1 },
       ],
     },
     {
@@ -1772,42 +1919,173 @@ body.teaching .tut-hot {
       ],
     },
     {
-      id: 'kotel',
-      name: 'Котёл',
-      rating: 'тяжёлый',
-      blurb: 'Три врага бьют по трём зданиям. Крюк тянет молота через яму.',
+      id: 'naves',
+      name: 'Навес',
+      rating: 'средний',
+      blurb: 'Мортира бьёт поверх преград: заслонить нельзя, только сдвинуть или снять.',
+      maxTurn: 5,
       map: [
-        'B......#',
         '........',
-        '~.......',
-        '........',
-        '....B.B.',
-        '........',
-        '..B.R..B',
-        'S......S',
+        '.....#..',
+        '....B...',
+        'S.......',
+        '.~.....S',
+        '.....R..',
+        '#..B....',
+        '~.B.....',
       ],
       units: [
-        { id: 'hammer', kind: 'hammer', x: 0, y: 1, dir: 'N' },
-        { id: 'needle', kind: 'needle', x: 6, y: 1, dir: 'S' },
-        { id: 'scara', kind: 'scara', x: 3, y: 4, dir: 'E' },
-        { id: 'kryuk', kind: 'kryuk', x: 2, y: 5, dir: 'W' },
-        { id: 'duga', kind: 'duga', x: 6, y: 5, dir: 'N' },
-        { id: 'klin', kind: 'klin', x: 3, y: 6, dir: 'N' },
+        { id: 'klin', kind: 'klin', x: 2, y: 4, dir: 'N' },
+        { id: 'duga', kind: 'duga', x: 6, y: 4, dir: 'N' },
+        { id: 'kryuk', kind: 'kryuk', x: 4, y: 4, dir: 'N' },
+        { id: 'mortar', kind: 'mortar', x: 5, y: 2, dir: 'S' },
+        { id: 'needle', kind: 'needle', x: 2, y: 6, dir: 'E' },
+        { id: 'scara', kind: 'scara', x: 3, y: 7, dir: 'W' },
       ],
       spawns: [
-        { afterTurn: 1, x: 0, y: 7, kind: 'scara' },
-        { afterTurn: 2, x: 7, y: 7, kind: 'needle' },
-        { afterTurn: 3, x: 0, y: 7, kind: 'hammer' },
-        { afterTurn: 4, x: 7, y: 7, kind: 'scara' },
+        { afterTurn: 1, x: 7, y: 4, kind: 'hammer' },
+        { afterTurn: 2, x: 0, y: 3, kind: 'scara' },
+        { afterTurn: 2, x: 7, y: 4, kind: 'mortar' },
+        { afterTurn: 3, x: 0, y: 3, kind: 'needle' },
+        { afterTurn: 4, x: 7, y: 4, kind: 'mortar' },
+        { afterTurn: 4, x: 0, y: 3, kind: 'mortar' },
       ],
       tutorial: false,
-      lesson: [
-        { type: 'move', unitId: 'kryuk', x: 0, y: 5 },
-        { type: 'act', unitId: 'kryuk', x: 0, y: 1 },
-        { type: 'move', unitId: 'klin', x: 3, y: 5 },
-        { type: 'act', unitId: 'klin', x: 3, y: 4 },
-        { type: 'act', unitId: 'duga', x: 6, y: 1 },
+    },
+    {
+      id: 'razvilka',
+      name: 'Развилка',
+      rating: 'средний',
+      blurb: 'Два разлома на одном фланге, иглы идут волнами. Следите за значками в разломах.',
+      maxTurn: 5,
+      map: [
+        '......#.',
+        '........',
+        '......B.',
+        '~.~..B#.',
+        'S.....~.',
+        '....R...',
+        '..B.....',
+        '.S......',
       ],
+      units: [
+        { id: 'klin', kind: 'klin', x: 6, y: 7, dir: 'N' },
+        { id: 'duga', kind: 'duga', x: 0, y: 6, dir: 'N' },
+        { id: 'kryuk', kind: 'kryuk', x: 7, y: 0, dir: 'N' },
+        { id: 'mortar', kind: 'mortar', x: 4, y: 2, dir: 'S' },
+        { id: 'needle', kind: 'needle', x: 4, y: 6, dir: 'W' },
+        { id: 'scara', kind: 'scara', x: 4, y: 4, dir: 'S' },
+      ],
+      spawns: [
+        { afterTurn: 1, x: 1, y: 7, kind: 'mortar' },
+        { afterTurn: 2, x: 0, y: 4, kind: 'needle' },
+        { afterTurn: 3, x: 0, y: 4, kind: 'needle' },
+        { afterTurn: 3, x: 1, y: 7, kind: 'needle' },
+        { afterTurn: 4, x: 0, y: 4, kind: 'mortar' },
+        { afterTurn: 4, x: 1, y: 7, kind: 'hammer' },
+      ],
+      tutorial: false,
+    },
+    {
+      id: 'pereval',
+      name: 'Перевал',
+      rating: 'средний',
+      blurb: 'Враги начинают вплотную к зданиям. Первый ход решает половину боя.',
+      maxTurn: 5,
+      map: [
+        '.....S..',
+        '...B..#.',
+        'S.......',
+        '.....R..',
+        '.B..~#.~',
+        '........',
+        '..#.....',
+        '.......B',
+      ],
+      units: [
+        { id: 'klin', kind: 'klin', x: 0, y: 7, dir: 'N' },
+        { id: 'duga', kind: 'duga', x: 4, y: 0, dir: 'N' },
+        { id: 'kryuk', kind: 'kryuk', x: 3, y: 3, dir: 'N' },
+        { id: 'mortar', kind: 'mortar', x: 2, y: 3, dir: 'E' },
+        { id: 'needle', kind: 'needle', x: 2, y: 1, dir: 'E' },
+        { id: 'scara', kind: 'scara', x: 3, y: 0, dir: 'S' },
+      ],
+      spawns: [
+        { afterTurn: 1, x: 0, y: 2, kind: 'needle' },
+        { afterTurn: 2, x: 5, y: 0, kind: 'needle' },
+        { afterTurn: 3, x: 5, y: 0, kind: 'mortar' },
+        { afterTurn: 3, x: 0, y: 2, kind: 'hammer' },
+        { afterTurn: 4, x: 0, y: 2, kind: 'scara' },
+        { afterTurn: 4, x: 5, y: 0, kind: 'needle' },
+      ],
+      tutorial: false,
+    },
+    {
+      id: 'plotina',
+      name: 'Плотина',
+      rating: 'тяжёлый',
+      blurb: 'Шесть ходов и три разлома. Берегите прочность мехов — её не восстановить.',
+      maxTurn: 6,
+      map: [
+        '~.....S~',
+        '#.B.....',
+        '......B.',
+        '.....~..',
+        'S.R.....',
+        '...B....',
+        '....B...',
+        '...#..S.',
+      ],
+      units: [
+        { id: 'klin', kind: 'klin', x: 4, y: 2, dir: 'N' },
+        { id: 'duga', kind: 'duga', x: 7, y: 6, dir: 'N' },
+        { id: 'kryuk', kind: 'kryuk', x: 5, y: 0, dir: 'N' },
+        { id: 'hammer', kind: 'hammer', x: 2, y: 3, dir: 'S' },
+        { id: 'needle', kind: 'needle', x: 6, y: 5, dir: 'N' },
+        { id: 'scara', kind: 'scara', x: 2, y: 0, dir: 'S' },
+      ],
+      spawns: [
+        { afterTurn: 1, x: 6, y: 7, kind: 'needle' },
+        { afterTurn: 2, x: 6, y: 0, kind: 'scara' },
+        { afterTurn: 2, x: 0, y: 4, kind: 'hammer' },
+        { afterTurn: 3, x: 0, y: 4, kind: 'scara' },
+        { afterTurn: 4, x: 0, y: 4, kind: 'hammer' },
+      ],
+      tutorial: false,
+    },
+    {
+      id: 'gornilo',
+      name: 'Горнило',
+      rating: 'предел',
+      blurb: 'Последний бой. Прогноз на один ход здесь обманывает: думайте на два.',
+      maxTurn: 6,
+      map: [
+        '..S.....',
+        '#....~..',
+        '.B.B....',
+        '.....#B.',
+        '..R.....',
+        '........',
+        'S.....B.',
+        '~.~#S...',
+      ],
+      units: [
+        { id: 'klin', kind: 'klin', x: 6, y: 5, dir: 'N' },
+        { id: 'duga', kind: 'duga', x: 7, y: 5, dir: 'N' },
+        { id: 'kryuk', kind: 'kryuk', x: 4, y: 5, dir: 'N' },
+        { id: 'hammer', kind: 'hammer', x: 3, y: 1, dir: 'S' },
+        { id: 'needle', kind: 'needle', x: 6, y: 2, dir: 'S' },
+        { id: 'scara', kind: 'scara', x: 6, y: 7, dir: 'N' },
+      ],
+      spawns: [
+        { afterTurn: 2, x: 0, y: 6, kind: 'scara' },
+        { afterTurn: 2, x: 2, y: 0, kind: 'hammer' },
+        { afterTurn: 3, x: 4, y: 7, kind: 'scara' },
+        { afterTurn: 3, x: 0, y: 6, kind: 'mortar' },
+        { afterTurn: 4, x: 4, y: 7, kind: 'needle' },
+        { afterTurn: 4, x: 2, y: 0, kind: 'hammer' },
+      ],
+      tutorial: false,
     },
   ];
 
@@ -1905,6 +2183,12 @@ body.teaching .tut-hot {
       text: 'Крюк третий: тянет врага к себе по прямой. В этом ходу он может подождать. Нажмите «Дальше».',
       allow: { type: 'next' },
       hot: { kind: 'unit', id: 'kryuk' },
+    },
+    {
+      id: 'rift',
+      text: 'Фиолетовый разлом: значок показывает, кто выйдет после хода. Мех на разломе сорвёт выход ценой 1 урона. Нажмите «Дальше».',
+      allow: { type: 'next' },
+      hot: { kind: 'tile', x: 3, y: 7 },
     },
     {
       id: 'end-turn',
@@ -2078,6 +2362,26 @@ body.teaching .tut-hot {
     },
   };
 
+  PROFILES.mortar = {
+    name: 'Мортира',
+    role: 'Навес через преграды',
+    side: 'enemy',
+    move: 2,
+    hp: 2,
+    accent: '#5fb8e8',
+    icon: 'lob',
+    diagram: {
+      size: 5,
+      note: 'Ровно на 3 клетки, поверх всего. Заслонить нельзя',
+      cells: [
+        { x: 2, y: 4, kind: 'self' },
+        { x: 2, y: 3, kind: 'over' },
+        { x: 2, y: 2, kind: 'over' },
+        { x: 2, y: 1, kind: 'dmg', amount: 1 },
+      ],
+    },
+  };
+
   function profile(kind) {
     return PROFILES[kind] || null;
   }
@@ -2117,8 +2421,23 @@ body.teaching .tut-hot {
     scara: 'Жук',
     needle: 'Игла',
     hammer: 'Молот',
+    mortar: 'Мортира',
   };
-  const TAG = { klin: 'Кл', duga: 'Ду', kryuk: 'Кр', scara: 'Жу', needle: 'Иг', hammer: 'Мл' };
+  const TAG = { klin: 'Кл', duga: 'Ду', kryuk: 'Кр', scara: 'Жу', needle: 'Иг', hammer: 'Мл', mortar: 'Мо' };
+  const MECHS = ['klin', 'duga', 'kryuk'];
+  const RATING = { 'средний': 'mid', 'тяжёлый': 'hard', 'предел': 'max' };
+
+  function starsHtml(n, cls) {
+    let html = '<span class="stars' + (cls ? ' ' + cls : '') + '" aria-label="Звёзд: ' + n + ' из 3">';
+    for (let i = 0; i < 3; i++) html += i < n ? '★' : '<span class="off">★</span>';
+    return html + '</span>';
+  }
+
+  function starsOf(rec) {
+    if (!rec) return 0;
+    if (rec.stars != null) return rec.stars;
+    return rec.grid === rec.gridMax ? 2 : 1;
+  }
   const DIR = { N: 'север', E: 'восток', S: 'юг', W: 'запад' };
   const ROT = { N: 0, E: 90, S: 180, W: 270 };
   const BLURB = {
@@ -2144,6 +2463,9 @@ body.teaching .tut-hot {
     }
     if (kind === 'needle') {
       return '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="54" rx="8" ry="3" fill="rgba(0,0,0,.35)"/><path d="M32 6 L42 36 L32 52 L22 36 Z" fill="#c97bff" stroke="#4c1868" stroke-width="2"/><path d="M32 6 L36 20 H28 Z" fill="#f6e9ff"/></svg>';
+    }
+    if (kind === 'mortar') {
+      return '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="56" rx="15" ry="3" fill="rgba(0,0,0,.35)"/><path d="M16 50 L20 34 H44 L48 50 Z" fill="#2f6f95" stroke="#0f2c40" stroke-width="2"/><rect x="25" y="10" width="14" height="26" rx="4" fill="#5fb8e8" stroke="#0f2c40" stroke-width="2"/><ellipse cx="32" cy="11" rx="6" ry="3" fill="#0f2c40"/><circle cx="32" cy="43" r="3" fill="#d6f1ff"/></svg>';
     }
     return '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="56" rx="16" ry="3" fill="rgba(0,0,0,.35)"/><rect x="20" y="28" width="24" height="22" rx="3" fill="#c4553a" stroke="#4a160e" stroke-width="2"/><rect x="26" y="8" width="12" height="18" rx="2" fill="#e7b2a4" stroke="#4a160e"/><rect x="16" y="12" width="14" height="10" rx="2" fill="#ffb15a" stroke="#4a160e"/></svg>';
   }
@@ -2264,6 +2586,8 @@ body.teaching .tut-hot {
         turnStart: this.session.turnStart,
         introSeen: this.introSeen,
       };
+    } else if (this.session) {
+      this.store.resume = null;
     }
     saveStore(this.store);
   };
@@ -2279,13 +2603,13 @@ body.teaching .tut-hot {
     this.mountScreen(
       '<div class="screen"><div class="hero">' +
       '<div><p class="brand">КР<span>ОМ</span>КА</p>' +
-      '<p class="tagline">Три меха берегут энергию зданий пять ходов.</p>' +
-      '<p class="lede">Красные клетки — куда враги ударят. Синие — куда можно пойти. Жёлтые — ваш удар.</p>' +
+      '<p class="tagline">Три меха берегут энергию зданий. Удары врагов видны заранее.</p>' +
+      '<p class="lede">Не бейте в лоб — двигайте. Толкнули врага, и его удар уехал вместе с ним: в пустоту, в яму или в другого врага.</p>' +
       '<div class="hero-actions">' +
       '<button class="primary" data-go="select">К боям</button>' +
       (resume ? '<button data-go="resume">Продолжить</button>' : '') +
       '<button class="ghost" data-go="help">Правила</button>' +
-      '</div><p class="fineprint">Пилот на один вечер. Прогресс хранится только на этом устройстве.</p></div>' +
+      '</div><p class="fineprint">' + this.battles.BATTLES.length + ' боёв, в каждом три звезды. Прогресс хранится только на этом устройстве.</p></div>' +
       '<div class="hero-art" aria-hidden="true">' + heroArt() + '</div></div></div>'
     );
     this.app.querySelector('[data-go="select"]').onclick = () => this.showSelect();
@@ -2298,17 +2622,17 @@ body.teaching .tut-hot {
     this.screen = 'select';
     const cards = this.battles.BATTLES.map((battle) => {
       const best = this.store.cleared[battle.id];
-      const ratingClass = battle.rating === 'тяжёлый' ? 'hard' : battle.rating === 'средний' ? 'mid' : '';
+      const ratingClass = RATING[battle.rating] || '';
       return '<button class="card" data-id="' + battle.id + '">' +
         '<span class="rating ' + ratingClass + '">' + battle.rating + '</span>' +
         '<h2>' + battle.name + '</h2>' +
         '<p class="blurb">' + battle.blurb + '</p>' +
         mini(battle) +
-        '<p class="record">' + (best ? 'Рекорд ' + best.score + ' · энергия ' + best.grid + '/' + best.gridMax : 'Ещё не пройден') + '</p>' +
+        '<p class="record">' + starsHtml(starsOf(best)) + ' ' + (best ? 'рекорд ' + best.score : 'не пройден') + '</p>' +
         '</button>';
     }).join('');
     this.mountScreen(
-      '<div class="screen"><div class="top"><h1>Бои</h1><button class="linkish" data-back>На обложку</button></div>' +
+      '<div class="screen"><div class="top"><h1>Бои</h1><span class="tally">★ ' + this.battles.BATTLES.reduce((n, b) => n + starsOf(this.store.cleared[b.id]), 0) + '/' + this.battles.BATTLES.length * 3 + '</span><button class="linkish" data-back>На обложку</button></div>' +
       '<div class="cards">' + cards + '</div></div>'
     );
     this.app.querySelector('[data-back]').onclick = () => this.showTitle();
@@ -2360,9 +2684,9 @@ body.teaching .tut-hot {
       '<div class="turn-pill" id="turn"></div>' +
       '<button class="sound" type="button"></button>' +
       '<button class="ghost" type="button" data-help>Правила</button>' +
-      '<button class="linkish" type="button" data-back>К боям</button>' +
+      '<button class="linkish" type="button" data-back>← Бои</button>' +
       '<div class="nowbar" id="nowbar"><p id="now"></p><button type="button" id="next-hint" hidden>Дальше</button><button type="button" class="ghost" id="skip-tut" hidden>Пропустить</button></div>' +
-      '<div class="legend" aria-label="Цвета клеток"><span><i class="swatch red"></i>удар врага</span><span><i class="swatch blue"></i>ход</span><span><i class="swatch gold"></i>урон</span><span><i class="swatch push"></i>толчок</span><span><i class="swatch pull"></i>тяга</span></div>' +
+      '<div class="legend" aria-label="Цвета клеток"><span><i class="swatch red"></i>удар врага</span><span><i class="swatch blue"></i>ход</span><span><i class="swatch gold"></i>урон</span><span><i class="swatch push"></i>толчок</span><span><i class="swatch pull"></i>тяга</span><span><i class="swatch rift"></i>разлом: кто выйдет и через сколько ходов</span></div>' +
       '</header>' +
       '<section class="stage"><div class="frame"><div class="board"><div class="tiles"></div><div class="pieces"></div><svg class="fx"></svg></div></div></section>' +
       '<aside class="dock">' +
@@ -2376,12 +2700,14 @@ body.teaching .tut-hot {
       '<div class="hint" hidden></div>' +
       '<div class="forecast"></div>' +
       '<div class="last" hidden></div>' +
+      '<div class="bar">' +
+      '<div class="barcast" id="barcast" aria-live="polite"></div>' +
       '<button class="primary" type="button" id="confirm" hidden>Подтвердить</button>' +
       '<div class="actions">' +
       '<button type="button" data-undo>Отмена</button>' +
-      '<button type="button" data-reset>Сброс хода</button>' +
+      '<button type="button" data-reset>Сброс</button>' +
       '<button class="primary endturn" type="button" data-end>Конец хода</button>' +
-      '</div>' +
+      '</div></div>' +
       '<div class="threats" id="threats"></div>' +
       '<p class="keys">1–3 — мехи, стрелки и Enter, E — конец хода, R — сброс, Backspace — отмена. Срабатывает и на русской раскладке.</p>' +
       '<div id="tut-arrow" hidden>▼</div>' +
@@ -2444,7 +2770,12 @@ body.teaching .tut-hot {
     const stage = this.app.querySelector('.stage');
     const width = stage.clientWidth - 8;
     const gap = width < 560 ? 2 : 4;
-    const tile = Math.max(36, Math.min(68, Math.floor((width - gap * 7 - 20) / 8)));
+    let fit = Math.floor((width - gap * 7 - 20) / 8);
+    if (window.innerWidth > 860) {
+      const room = window.innerHeight - (stage.getBoundingClientRect().top + window.scrollY) - 28;
+      fit = Math.min(fit, Math.floor((room - gap * 7 - 20) / 8));
+    }
+    const tile = Math.max(36, Math.min(68, fit));
     this.tile = tile;
     this.gap = gap;
     this.board.style.setProperty('--tile', tile + 'px');
@@ -2475,7 +2806,7 @@ body.teaching .tut-hot {
     const state = this.session.state;
     this.app.querySelector('.name').textContent = this.battle.name;
     const turnShown = Math.min(state.turn, state.maxTurn);
-    this.app.querySelector('#turn').textContent = 'Ход ' + turnShown + ' из ' + state.maxTurn;
+    this.app.querySelector('#turn').textContent = 'Ход ' + turnShown + '/' + state.maxTurn;
     this.app.querySelector('#gridnum').textContent = Math.max(0, state.gridHp) + '/' + state.gridMax;
     const pips = this.app.querySelector('#pips');
     pips.innerHTML = '';
@@ -2485,7 +2816,8 @@ body.teaching .tut-hot {
       pips.appendChild(pip);
     }
     const sound = this.app.querySelector('.sound');
-    sound.textContent = this.soundOn ? 'Звук вкл' : 'Звук выкл';
+    sound.textContent = this.soundOn ? '🔊' : '🔇';
+    sound.setAttribute('aria-label', this.soundOn ? 'Звук включён' : 'Звук выключен');
     sound.setAttribute('aria-pressed', this.soundOn ? 'true' : 'false');
     const canUndo = this.session.past.length > 0 && state.status === 'playing' && !this.busy;
     this.app.querySelector('[data-undo]').disabled = !canUndo;
@@ -2516,8 +2848,14 @@ body.teaching .tut-hot {
         }
       }
     }
+    const incoming = {};
+    for (const sp of this.logic.pendingSpawns(state)) {
+      const k = sp.y * 8 + sp.x;
+      if (!incoming[k] || sp.afterTurn < incoming[k].afterTurn) incoming[k] = sp;
+    }
     state.tiles.forEach((tile, i) => {
       const el = this.tileNodes[i];
+      const inc = incoming[i] ? { kind: incoming[i].kind, wait: incoming[i].afterTurn - state.turn } : null;
       const classes = ['tile'];
       if ((tile.x + tile.y) % 2 === 0 && tile.terrain === 'ground' && !tile.rubble) classes.push('alt');
       if (tile.terrain === 'water') classes.push('water');
@@ -2526,8 +2864,8 @@ body.teaching .tut-hot {
       if (tile.rubble) classes.push('rubble-' + tile.rubble);
       if (tile.spawn) classes.push('spawn');
       el.className = classes.join(' ');
-      el.setAttribute('aria-label', labelTile(tile));
-      el.querySelector('.deco').innerHTML = decoOf(tile);
+      el.setAttribute('aria-label', labelTile(tile) + (inc ? ', выйдет ' + NAME[inc.kind] + (inc.wait ? ' через ' + inc.wait : ' после этого хода') : ''));
+      el.querySelector('.deco').innerHTML = decoOf(tile, inc);
       if (!el.querySelector('.ord-tile')) {
         const badge = document.createElement('span');
         badge.className = 'ord-tile';
@@ -2593,13 +2931,17 @@ body.teaching .tut-hot {
   Game.prototype.paintMechs = function () {
     const box = this.app.querySelector('.mechs');
     if (!box) return;
-    const order = ['klin', 'duga', 'kryuk'];
-    box.innerHTML = order.map((id) => {
+    box.innerHTML = MECHS.map((id) => {
       const unit = this.logic.unitById(this.session.state, id);
-      if (!unit) return '';
       const passport = this.units.profile(id);
+      if (!unit) {
+        if (!this.battle.units.some((u) => u.id === id)) return '';
+        return '<button type="button" class="mech dead" disabled style="--accent:' + passport.accent + '">' +
+          '<div class="mini-svg">' + svgUnit(id) + '</div>' +
+          '<div><div class="who">' + passport.name + '</div><div class="sub">пал</div></div></button>';
+      }
       const status = unit.hp <= 0 ? 'пал' : unit.acted ? 'ударил' : unit.moved ? 'уже шёл' : 'готов';
-      return '<button type="button" class="mech' + (id === this.selectedId ? ' on' : '') + '" data-pick="' + id + '" style="--accent:' + passport.accent + '">' +
+      return '<button type="button" class="mech' + (id === this.selectedId ? ' on' : '') + (unit.acted ? ' done' : '') + '" data-pick=""' + id + '" style="--accent:' + passport.accent + '">' +
         '<div class="mini-svg">' + svgUnit(unit.kind) + '<span class="atk-icon">' + attackIcon(passport.icon) + '</span></div>' +
         '<div><div class="who">' + passport.name + ' ' + unit.hp + '/' + unit.maxHp + '</div>' +
         '<div class="sub">' + status + ' · ' + passport.role + '</div></div></button>';
@@ -2754,11 +3096,19 @@ body.teaching .tut-hot {
       const dest = info.impact || info.tiles[info.tiles.length - 1];
       if (!dest) continue;
       const to = pt(dest.x, dest.y);
-      svg += '<line class="arrow" x1="' + from.x + '" y1="' + from.y + '" x2="' + to.x + '" y2="' + to.y + '" marker-end="url(#ah)"/>';
+      if (info.weapon === 'lob') {
+        const bend = step * 0.9;
+        const cx = (from.x + to.x) / 2 + (from.y === to.y ? 0 : bend);
+        const cy = (from.y + to.y) / 2 - (from.y === to.y ? bend : 0);
+        svg += '<path class="arrow" stroke-dasharray="7 5" d="M' + from.x + ' ' + from.y + ' Q' + cx + ' ' + cy + ' ' + to.x + ' ' + to.y + '" marker-end="url(#ah)"/>';
+      } else {
+        svg += '<line class="arrow" x1="' + from.x + '" y1="' + from.y + '" x2="' + to.x + '" y2="' + to.y + '" marker-end="url(#ah)"/>';
+      }
       if (info.impact) {
         const p = pt(info.impact.x, info.impact.y);
-        svg += '<circle cx="' + p.x + '" cy="' + p.y + '" r="12" fill="#fff" stroke="#e23d3d" stroke-width="2"/>';
-        svg += '<text x="' + p.x + '" y="' + (p.y + 5) + '" text-anchor="middle" fill="#8d140c" font-size="14" font-weight="700" font-family="sans-serif">' + unit.order + '</text>';
+        const r = Math.max(8, Math.round(this.tile * 0.18));
+        svg += '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + r + '" fill="#fff" stroke="#e23d3d" stroke-width="2"/>';
+        svg += '<text x="' + p.x + '" y="' + (p.y + r * 0.4) + '" text-anchor="middle" fill="#8d140c" font-size="' + Math.round(r * 1.2) + '" font-weight="700" font-family="sans-serif">' + unit.order + '</text>';
       }
     }
     if (preview) {
@@ -2795,6 +3145,7 @@ body.teaching .tut-hot {
       const tail = lost > 0 ? 'После этого энергия зданий −' + lost : 'После этого энергия зданий цела';
       box.className = 'forecast' + (lost > 0 ? ' bad' : '');
       box.innerHTML = '<strong>Если подтвердить</strong>' + list(lines.length ? lines : ['Без урона']) + '<p><strong>' + tail + '</strong></p>';
+      this.paintBarcast(tail, lost > 0);
       return;
     }
     const future = this.logic.previewResolution(this.session.state);
@@ -2802,7 +3153,15 @@ body.teaching .tut-hot {
     box.className = 'forecast' + (lost > 0 ? ' bad' : '');
     const lines = narrate(future.events);
     const head = lost > 0 ? 'Если нажать «Конец хода», энергия −' + lost : 'Если нажать «Конец хода», энергия цела';
-    box.innerHTML = '<strong>' + head + '</strong>' + list(lines);
+    box.innerHTML = '<strong>' + head + '</strong>' + list(lines.concat(this.riftLines()));
+    this.paintBarcast(lost > 0 ? 'Конец хода: энергия −' + lost : 'Конец хода: энергия цела', lost > 0);
+  };
+
+  Game.prototype.paintBarcast = function (text, bad) {
+    const el = this.app.querySelector('#barcast');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'barcast' + (bad ? ' bad' : '');
   };
 
   Game.prototype.tutStep = function () {
@@ -2921,8 +3280,9 @@ body.teaching .tut-hot {
       .filter((u) => u.side === 'enemy' && u.attacking)
       .slice()
       .sort((a, b) => a.order - b.order);
-    if (!units.length) { box.innerHTML = ''; return; }
-    box.innerHTML = units.map((u) => {
+    const rifts = this.riftLines().map((line) => '<div><span class="ord rift">+</span><span>' + line + '</span></div>').join('');
+    if (!units.length) { box.innerHTML = rifts; return; }
+    box.innerHTML = rifts + units.map((u) => {
       const info = this.logic.telegraph(this.session.state, u);
       let what = 'мимо';
       if (info && info.impact) {
@@ -2930,6 +3290,17 @@ body.teaching .tut-hot {
       }
       return '<div><span class="ord">' + u.order + '</span><span>' + NAME[u.kind] + ' · ' + DIR[u.dir] + ' · ' + what + '</span></div>';
     }).join('');
+  };
+
+  /* Кто выйдет из разломов сразу после этого хода. */
+  Game.prototype.riftLines = function () {
+    const state = this.session.state;
+    if (state.status !== 'playing') return [];
+    return this.logic.pendingSpawns(state).filter((sp) => sp.afterTurn === state.turn).map((sp) => {
+      const occ = this.logic.unitAt(state, sp.x, sp.y);
+      if (occ) return NAME[occ.kind] + ' держит разлом: ' + NAME[sp.kind] + ' не выйдет, ' + NAME[occ.kind] + ' −1';
+      return 'После хода выйдет ' + NAME[sp.kind];
+    });
   };
 
   Game.prototype.paintEnd = function () {
@@ -2941,33 +3312,40 @@ body.teaching .tut-hot {
     const win = state.status === 'won';
     if (win) {
       const prev = this.store.cleared[this.battle.id];
-      if (!prev || score.total >= prev.score) {
-        this.store.cleared[this.battle.id] = {
-          score: score.total,
-          grid: score.grid,
-          gridMax: score.gridMax,
-          kills: score.kills,
-          mechs: score.mechs,
-        };
-      }
+      this.store.cleared[this.battle.id] = {
+        score: Math.max(score.total, prev ? prev.score : 0),
+        stars: Math.max(score.stars, starsOf(prev)),
+        grid: score.grid,
+        gridMax: score.gridMax,
+      };
       this.store.tutorialDone = this.store.tutorialDone || this.battle.tutorial;
-      this.store.resume = null;
-      saveStore(this.store);
     }
+    this.store.resume = null;
+    saveStore(this.store);
+    const all = this.battles.BATTLES;
+    const next = win ? all[all.findIndex((b) => b.id === this.battle.id) + 1] : null;
+    const goal = (ok, text) => '<div class="goal' + (ok ? '' : ' miss') + '"><i>' + (ok ? '✓' : '·') + '</i><span>' + text + '</span></div>';
     layer.hidden = false;
     layer.querySelector('.end-card').className = 'end-card ' + (win ? 'win' : 'lose');
     const reason = state.lossReason === 'mechs' ? 'Мехи пали' : 'Энергия кончилась';
     layer.querySelector('.end-card').innerHTML =
-      '<div class="sparks"></div>' +
-      '<h2>' + (win ? 'Здания целы' : reason) + '</h2>' +
-      '<p class="sub">' + this.battle.name + ' · ход ' + Math.min(state.turn, state.maxTurn) + '</p>' +
+      '<h2>' + (win ? (score.clear ? 'Поле чисто' : 'Устояли') : reason) + '</h2>' +
+      '<p class="sub">' + this.battle.name + ' · ход ' + Math.min(state.turn, state.maxTurn) + ' из ' + state.maxTurn + '</p>' +
+      (win ? starsHtml(score.stars, 'big') +
+        goal(true, 'Продержаться до конца') +
+        goal(score.intact, 'Сберечь всю энергию зданий') +
+        goal(score.clear, 'Не оставить на поле ни одного врага')
+        : '<p class="sub">Подсказка: смотрите на прогноз перед «Концом хода» и на значки в разломах — там видно, кто выйдет следующим.</p>') +
       row('Энергия зданий', score.grid + '/' + score.gridMax) +
       row('Враги сняты', String(score.kills)) +
-      row('Мехи', score.mechs + '/3') +
+      row('Прочность мехов', String(score.mechHp)) +
       '<div class="score-row total"><span>Очки</span><span>' + score.total + '</span></div>' +
-      '<p class="sub">Энергия × 100 + враги × 25 + мехи × 50</p>' +
-      '<div class="end-actions"><button class="primary" type="button" data-again>Ещё раз</button><button type="button" data-list>К боям</button></div>';
+      '<p class="sub">Энергия × 100 + враги × 25 + прочность × 10</p>' +
+      '<div class="end-actions">' +
+      (next ? '<button class="primary wide" type="button" data-next>Дальше: ' + next.name + '</button>' : '') +
+      '<button' + (next ? '' : ' class="primary"') + ' type="button" data-again>Ещё раз</button><button type="button" data-list>К боям</button></div>';
     layer.querySelector('[data-again]').onclick = () => this.startBattle(this.battle.id);
+    if (next) layer.querySelector('[data-next]').onclick = () => this.startBattle(next.id);
     layer.querySelector('[data-list]').onclick = () => this.showSelect();
   };
 
@@ -3033,7 +3411,8 @@ body.teaching .tut-hot {
     }
     if (!this.selectedId) return;
     if (!intent) { this.paintOverlay(); return; }
-    if (this.fine && intent === 'move') this.commit(intent, x, y);
+    const again = this.armed && this.armed.intent === intent && this.armed.x === x && this.armed.y === y;
+    if (again || (this.fine && intent === 'move')) this.commit(intent, x, y);
     else if (this.fine && intent === 'act') {
       this.armed = { intent: intent, x: x, y: y };
       this.paintOverlay();
@@ -3041,8 +3420,7 @@ body.teaching .tut-hot {
       const confirm = this.app.querySelector('#confirm');
       confirm.hidden = false;
       confirm.textContent = 'Ударить';
-    } else if (this.armed && this.armed.intent === intent && this.armed.x === x && this.armed.y === y) this.commit(intent, x, y);
-    else {
+    } else {
       this.armed = { intent: intent, x: x, y: y };
       this.paintOverlay();
       this.paintForecast();
@@ -3251,8 +3629,8 @@ body.teaching .tut-hot {
   };
 
   Game.prototype.animShot = function (e) {
-    this.blip(e.kind === 'shell' ? 'shot' : 'hit');
-    if (e.kind === 'shell') return this.animShell(e);
+    this.blip(e.kind === 'shell' || e.kind === 'lob' ? 'shot' : 'hit');
+    if (e.kind === 'shell' || e.kind === 'lob') return this.animShell(e);
     if (e.kind === 'hook') return this.animHook(e);
     if (e.kind === 'lance') return this.animLance(e);
     return this.animLunge(e);
@@ -3369,7 +3747,7 @@ body.teaching .tut-hot {
 
   Game.prototype.flash = function (x, y) {
     const el = document.createElement('div');
-    el.className = 'impact';
+    el.className = 'blast';
     const step = this.tile + this.gap;
     el.style.left = (x * step + this.tile / 2) + 'px';
     el.style.top = (y * step + this.tile / 2) + 'px';
@@ -3411,8 +3789,7 @@ body.teaching .tut-hot {
   };
 
   Game.prototype.selectNth = function (index) {
-    const order = ['klin', 'duga', 'kryuk'];
-    const id = order[index];
+    const id = MECHS[index];
     if (this.logic.unitById(this.session.state, id)) this.select(id);
   };
 
@@ -3452,7 +3829,7 @@ body.teaching .tut-hot {
     const el = document.createElement('div');
     el.dataset.id = e.id;
     el.className = 'piece enemy';
-    el.innerHTML = '<div class="rot">' + svgUnit(e.kind) + '</div><span class="tag">' + (TAG[e.kind] || '') + '</span><span class="badge" hidden></span><span class="hp"></span>';
+    el.innerHTML = '<div class="rot">' + svgUnit(e.kind) + '</div><span class="atk-icon"></span><span class="tag">' + (TAG[e.kind] || '') + '</span><span class="badge" hidden></span><span class="hp"></span>';
     const step = this.tile + this.gap;
     el.style.transform = 'translate(' + (e.x * step) + 'px,' + (e.y * step) + 'px)';
     this.piecesEl.appendChild(el);
@@ -3503,7 +3880,7 @@ body.teaching .tut-hot {
     return 'Ряд ' + (tile.y + 1) + ', столбец ' + (tile.x + 1) + ', ' + kind;
   }
 
-  function decoOf(tile) {
+  function decoOf(tile, inc) {
     if (tile.terrain === 'mountain') {
       return '<svg viewBox="0 0 64 64" width="100%" height="100%"><polygon points="6,56 32,8 58,56" fill="#8ea0b4"/><polygon points="32,8 42,30 26,28" fill="#d5dee8" opacity=".8"/></svg>';
     }
@@ -3518,18 +3895,22 @@ body.teaching .tut-hot {
       return '<svg viewBox="0 0 64 64" width="100%" height="100%"><rect x="12" y="36" width="18" height="10" fill="#6a5344"/><rect x="32" y="40" width="16" height="8" fill="#4e3b32"/><path d="M16 30 L30 44" stroke="#2a211c" stroke-width="2"/></svg>';
     }
     if (tile.spawn) {
-      return '<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="12" fill="none" stroke="#b450e0" stroke-width="2" stroke-dasharray="3 3"/><circle cx="32" cy="32" r="3" fill="#d9a0ff"/></svg>';
+      const ring = '<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="' + (inc ? 26 : 12) + '" fill="none" stroke="#b450e0" stroke-width="2" stroke-dasharray="3 3"/>' + (inc ? '' : '<circle cx="32" cy="32" r="3" fill="#d9a0ff"/>') + '</svg>';
+      if (!inc) return ring;
+      return ring + '<div class="rift-unit' + (inc.wait ? '' : ' now') + '">' + svgUnit(inc.kind) + '<b>' + (inc.wait ? inc.wait : '!') + '</b></div>';
     }
     return '';
   }
 
   function mini(battle) {
     let html = '<div class="mini" aria-hidden="true">';
-    const chars = battle.map.join('');
-    for (const ch of chars) {
-      const cls = { '.': 'g', '~': 'w', '#': 'n', B: 'b', R: 'r', S: 's' }[ch] || 'g';
+    const chars = battle.map.join('').split('');
+    const who = {};
+    for (const u of battle.units) who[u.y * 8 + u.x] = MECHS.includes(u.kind) ? 'p' : 'e';
+    chars.forEach((ch, i) => {
+      const cls = who[i] || { '.': 'g', '~': 'w', '#': 'n', B: 'b', R: 'r', S: 's' }[ch] || 'g';
       html += '<i class="m-' + cls + '"></i>';
-    }
+    });
     html += '</div>';
     return html;
   }
@@ -3558,6 +3939,7 @@ body.teaching .tut-hot {
     if (icon === 'arc') return '<svg viewBox="0 0 16 16"><path d="M2 12 Q8 2 14 12" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
     if (icon === 'hook') return '<svg viewBox="0 0 16 16"><path d="M4 13 V5 H10 Q13 5 13 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
     if (icon === 'jab') return '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3" fill="currentColor"/></svg>';
+    if (icon === 'lob') return '<svg viewBox="0 0 16 16"><path d="M2 13 Q8 -2 13 9" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2"/><circle cx="13" cy="11" r="2.4" fill="currentColor"/></svg>';
     if (icon === 'lance') return '<svg viewBox="0 0 16 16"><path d="M8 14 V3 M5 6 L8 2 L11 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
     return '<svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="2" fill="currentColor"/></svg>';
   }
@@ -3593,13 +3975,17 @@ body.teaching .tut-hot {
 
   function helpHtml() {
     return [
-      '<p>Пять ходов. Жёлтая шкала — энергия зданий. Ноль — проигрыш. Нет мехов — тоже проигрыш.</p>',
+      '<p>Продержитесь указанное число ходов. Жёлтая шкала — энергия зданий. Ноль — проигрыш. Нет мехов — тоже проигрыш. Если врагов не осталось и новых не будет, бой выигран сразу.</p>',
       '<p><i class="swatch red"></i>удар врага <i class="swatch blue"></i>ход <i class="swatch gold"></i>урон <i class="swatch push"></i>толчок <i class="swatch pull"></i>тяга</p>',
       '<h3>Мехи рядом</h3>',
       compareRow('player'),
       '<h3>Враги рядом</h3>',
       compareRow('enemy'),
-      '<p>Толкнули врага — его красная клетка переехала. Яма уничтожает. Упор в фигуру, гору или здание даёт по 1 урона обоим. Враги бьют в начале своего хода по цифрам: игла, жук, молот.</p>',
+      '<p>Толкнули врага — его красная клетка переехала. Яма уничтожает. Упор в фигуру, гору или здание даёт по 1 урона обоим. Враги бьют в начале своего хода по цифрам: игла, жук, молот, мортира. Удар раннего врага может убить позднего раньше, чем тот выстрелит.</p>',
+      '<h3>Разломы</h3>',
+      '<p><i class="swatch rift"></i>Из фиолетовых разломов выходят новые враги. Значок показывает, кто выйдет, цифра — через сколько ходов, «!» — сразу после этого хода. Мех на разломе срывает выход: враг не появляется и засчитан как снятый, но мех получает 1 урона.</p>',
+      '<h3>Звёзды</h3>',
+      '<p>★ продержаться · ★ сберечь всю энергию · ★ не оставить на поле ни одного врага.</p>',
       '<p>За ход мех может пойти, потом ударить. «Конец хода» отдаёт ход врагам. Наведите или нажмите фигуру — откроется её карточка.</p>',
     ].join('');
   }
