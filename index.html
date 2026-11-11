@@ -203,7 +203,7 @@ p { margin: 0; }
   box-shadow: 0 0 8px rgba(226, 161, 90, 0.55);
 }
 .pips i.pop { animation: pip 420ms ease; }
-.stage { grid-area: stage; display: flex; justify-content: flex-start; align-items: flex-start; }
+.stage { grid-area: stage; display: flex; justify-content: flex-start; align-items: flex-start; min-width: 0; }
 .frame {
   padding: 10px;
   border-radius: 20px;
@@ -528,7 +528,7 @@ body.teaching .tut-hot {
   background: radial-gradient(circle at 35% 35%, #fff, #ffb15a 40%, #c4512a);
   box-shadow: 0 0 10px #ffb15a;
 }
-.impact {
+.blast {
   position: absolute;
   width: 36px;
   height: 36px;
@@ -692,7 +692,7 @@ body.teaching .tut-hot {
   .hero { grid-template-columns: 1fr; min-height: auto; gap: 18px; }
   .cards { grid-template-columns: 1fr; }
   .battle {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "top"
       "stage"
@@ -2264,6 +2264,8 @@ body.teaching .tut-hot {
         turnStart: this.session.turnStart,
         introSeen: this.introSeen,
       };
+    } else if (this.session) {
+      this.store.resume = null;
     }
     saveStore(this.store);
   };
@@ -3033,7 +3035,8 @@ body.teaching .tut-hot {
     }
     if (!this.selectedId) return;
     if (!intent) { this.paintOverlay(); return; }
-    if (this.fine && intent === 'move') this.commit(intent, x, y);
+    const again = this.armed && this.armed.intent === intent && this.armed.x === x && this.armed.y === y;
+    if (again || (this.fine && intent === 'move')) this.commit(intent, x, y);
     else if (this.fine && intent === 'act') {
       this.armed = { intent: intent, x: x, y: y };
       this.paintOverlay();
@@ -3041,8 +3044,7 @@ body.teaching .tut-hot {
       const confirm = this.app.querySelector('#confirm');
       confirm.hidden = false;
       confirm.textContent = 'Ударить';
-    } else if (this.armed && this.armed.intent === intent && this.armed.x === x && this.armed.y === y) this.commit(intent, x, y);
-    else {
+    } else {
       this.armed = { intent: intent, x: x, y: y };
       this.paintOverlay();
       this.paintForecast();
@@ -3369,7 +3371,7 @@ body.teaching .tut-hot {
 
   Game.prototype.flash = function (x, y) {
     const el = document.createElement('div');
-    el.className = 'impact';
+    el.className = 'blast';
     const step = this.tile + this.gap;
     el.style.left = (x * step + this.tile / 2) + 'px';
     el.style.top = (y * step + this.tile / 2) + 'px';
@@ -3452,7 +3454,7 @@ body.teaching .tut-hot {
     const el = document.createElement('div');
     el.dataset.id = e.id;
     el.className = 'piece enemy';
-    el.innerHTML = '<div class="rot">' + svgUnit(e.kind) + '</div><span class="tag">' + (TAG[e.kind] || '') + '</span><span class="badge" hidden></span><span class="hp"></span>';
+    el.innerHTML = '<div class="rot">' + svgUnit(e.kind) + '</div><span class="atk-icon"></span><span class="tag">' + (TAG[e.kind] || '') + '</span><span class="badge" hidden></span><span class="hp"></span>';
     const step = this.tile + this.gap;
     el.style.transform = 'translate(' + (e.x * step) + 'px,' + (e.y * step) + 'px)';
     this.piecesEl.appendChild(el);
